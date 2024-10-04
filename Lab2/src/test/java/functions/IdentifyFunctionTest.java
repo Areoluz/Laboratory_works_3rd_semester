@@ -20,7 +20,7 @@ class IdentifyFunctionTest {
     }
 
     @Test
-    void applyDouble() {
+    void applyNegativeDouble() {
         double res = function.apply(-2.2);
         Assertions.assertEquals(-2.2,res);
     }

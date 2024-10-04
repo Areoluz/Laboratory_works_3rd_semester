@@ -1,7 +1,6 @@
 package functions;
 
-public class IdentifyFunction {
-
+public class IdentifyFunction implements MathFunction {
     public double apply(double x){
         return x;
     }
