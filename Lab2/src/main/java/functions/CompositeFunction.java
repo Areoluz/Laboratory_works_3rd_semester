@@ -1,6 +1,6 @@
 package functions;
 
-public class CompositeFunction {
+public class CompositeFunction {  //забыла implements
     private final MathFunction firstFunction;
     private final MathFunction secondFunction;
 
