@@ -19,7 +19,7 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
     }
 
     private Node head;  // Голова списка
-    
+
     private void addNode(double x, double y) {
         Node newNode = new Node(x, y);
         if (head == null) {

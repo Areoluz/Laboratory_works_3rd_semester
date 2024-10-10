@@ -29,6 +29,8 @@ public class SimpleIterationsFunction {
             iterations++;
         }
 
+
+
         return x;
     }
 }
