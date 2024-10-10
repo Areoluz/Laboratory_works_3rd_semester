@@ -19,9 +19,7 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
     }
 
     private Node head;  // Голова списка
-
-
-    // Приватный метод добавления узла в конец списка
+    
     private void addNode(double x, double y) {
         Node newNode = new Node(x, y);
         if (head == null) {
@@ -38,7 +36,6 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
         count++;
     }
 
-    // Приватный метод для поиска узла по индексу
     private Node getNode(int index) {
         if (index < 0 || index >= count) {
             throw new IndexOutOfBoundsException("Index is out of bounds");
@@ -80,7 +77,6 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
         }
     }
 
-    // Конструктор с параметрами для равномерной дискретизации
     public LinkedListTabulatedFunction(MathFunction source, double xFrom, double xTo, int count) {
         if (count < 2) {
             throw new IllegalArgumentException("Count must be at least 2.");
