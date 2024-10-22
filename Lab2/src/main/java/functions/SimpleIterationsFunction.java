@@ -1,6 +1,6 @@
 package functions;
 
-public class SimpleIterationsFunction {
+public class SimpleIterationsFunction implements MathFunction{
 
     private final MathFunction g;
     private final double accuracy;
@@ -33,4 +33,9 @@ public class SimpleIterationsFunction {
 
         return x;
     }
+
+    public double apply(double x) {
+        return g.apply(x);
+    }
+
 }
