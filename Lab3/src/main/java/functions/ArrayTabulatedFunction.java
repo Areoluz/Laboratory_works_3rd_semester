@@ -1,4 +1,5 @@
 package functions;
+import exceptions.InterpolationException;
 
 import java.util.Arrays;
 public class ArrayTabulatedFunction extends AbstractTabulatedFunction  {
@@ -9,15 +10,8 @@ public class ArrayTabulatedFunction extends AbstractTabulatedFunction  {
         if(xValues.length == 0) {
             throw new IllegalArgumentException("You must specify at least one x:y value");
         }
-        if (xValues.length != yValues.length) {
-            throw new IllegalArgumentException("Number of X should be equal to Number of Y");
-        }
-
-        for (int i = 1; i < xValues.length; i++) {
-            if (xValues[i] <= xValues[i - 1]) {
-                throw new IllegalArgumentException("X values must increase");
-            }
-        }
+        checkLengthIsTheSame(xValues, yValues);
+        checkSorted(xValues);
         this.xValues = Arrays.copyOf(xValues, xValues.length);
         this.yValues = Arrays.copyOf(yValues, yValues.length);
         this.count = xValues.length;
@@ -120,7 +114,10 @@ public class ArrayTabulatedFunction extends AbstractTabulatedFunction  {
     }
 
     @Override
-    protected double interpolate(double x, int floorIndex) {    // Интерполяция для конкретного интервала
+    protected double interpolate(double x, int floorIndex) {
+        if (x < xValues[floorIndex] || x > xValues[floorIndex + 1]) {
+            throw new InterpolationException("Value of x is out of the interpolation interval.");}
+
         return interpolate(x, xValues[floorIndex], xValues[floorIndex + 1], yValues[floorIndex], yValues[floorIndex + 1]);
     }
 

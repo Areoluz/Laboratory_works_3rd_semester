@@ -1,8 +1,7 @@
 package functions;
-
-import exceptions.DifferentLengthException;
+import exceptions.DifferentLengthOfArraysException;
+import exceptions.ArrayIsNotSortedException;
 import exceptions.InterpolationException;
-import exceptions.NotSortedException;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -81,14 +80,6 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
         return getNode(count);
     }
 
-    static void checkLengthIsTheSame(double[] xValues, double[] yValues) {
-        if (xValues.length != yValues.length)  throw new DifferentLengthException("Different length arrays");
-    }
-
-    static void checkSorted(double[] xValues){
-        for (int i = 1; i < xValues.length; i++)
-            if (xValues[i] <= xValues[i-1]) throw new NotSortedException("Array is not sorted");
-    }
 
     // Конструктор с массивами xValues и yValues
     public LinkedListTabulatedFunction(double[] xValues, double[] yValues) {
