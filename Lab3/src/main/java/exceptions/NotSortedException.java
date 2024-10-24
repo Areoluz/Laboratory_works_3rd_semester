@@ -1,4 +1,4 @@
-package exeptions;
+package exceptions;
 
 public class NotSortedException extends RuntimeException {
     public NotSortedException() {
