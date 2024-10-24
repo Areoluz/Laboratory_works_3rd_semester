@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Test;
 class LinkedListTabulatedFunctionTest {
 
     private LinkedListTabulatedFunction list;
-    private double[] first = {0, 1, 2, 3, 4, 5, 6, 7};
-    private double[] second = {0, 1, 4, 7, 10, 28, 33, 35};
+    private final double[] first = {0, 1, 2, 3, 4, 5, 6, 7};
+    private final double[] second = {0, 1, 4, 7, 10, 28, 33, 35};
 
     @BeforeEach
     void createList2argumentsTest() {
@@ -67,6 +67,29 @@ class LinkedListTabulatedFunctionTest {
     void rightBoundTest() {
         double res = list.rightBound();
         Assertions.assertEquals(7, res);
+    }
+
+    @Test
+    void exceptionsGetTest() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> list.getNode(-1));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> list.getY(-1));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> list.getX(-1));
+    }
+
+    @Test
+    void exceptionsFloorTest()
+    {
+        Assertions.assertThrows(IllegalArgumentException.class,()->list.floorNodeOfX(-1));
+        Assertions.assertThrows(IllegalArgumentException.class,()->list.floorIndexOfX(-1));
+    }
+
+    @Test
+    void exceptionsConstructorTest()
+    {
+        Assertions.assertThrows(IllegalArgumentException.class,()->new LinkedListTabulatedFunction(new double[]{1},new double[]{1}));
+        Assertions.assertThrows(IllegalArgumentException.class,()->new LinkedListTabulatedFunction(new double[]{},new double[]{}));
+        Assertions.assertThrows(IllegalArgumentException.class,()->new LinkedListTabulatedFunction(new SqrFunction(),1,10,1));
+        Assertions.assertThrows(IllegalArgumentException.class,()->new LinkedListTabulatedFunction(new SqrFunction(),1,10,0));
     }
 
     @Test

@@ -1,20 +1,27 @@
 package functions;
 
-import exeptions.DifferentLengthException;
-import exeptions.InterpolationException;
-import exeptions.NotSortedException;
+import exceptions.DifferentLengthException;
+import exceptions.InterpolationException;
+import exceptions.NotSortedException;
 
 public class LinkedListTabulatedFunction extends AbstractTabulatedFunction implements TabulatedFunction{
 
     static class Node {
+
         public Node next;
         public Node prev;
         public double x;
         public double y;
 
-        Node(double x, double y) {
+        public Node(final double x, final double y) {
             this.x = x;
             this.y = y;
+        }
+
+        public Node(double x, double y, Node next, Node prev) {
+            this(x, y);
+            this.next = next;
+            this.prev = prev;
         }
     }
 
@@ -36,9 +43,9 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
         count++;
     }
 
-    private Node getNode(int index) {
+    protected Node getNode(int index) {
         if (index < 0 || index >= count) {
-            throw new IndexOutOfBoundsException("Index is out of bounds");
+           throw new IllegalArgumentException("Index can't be less than zero and more than length");
         }
 
         Node current;
@@ -57,6 +64,19 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
         return current;
     }
 
+    protected Node floorNodeOfX(double x) {
+        if (x < head.x)
+            throw new IllegalArgumentException("x less than left bound of the list");
+        Node cur = head;
+        int i = 0;
+        do {
+            if (cur.x >= x)
+                return i == 0 ? getNode(0) : getNode(i - 1);
+            ++i;
+            cur = cur.next;
+        } while (cur != head);
+        return getNode(count);
+    }
 
     static void checkLengthIsTheSame(double[] xValues, double[] yValues) {
         if (xValues.length != yValues.length)  throw new DifferentLengthException("Different length arrays");
@@ -102,7 +122,6 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
         if (head != null)
             addNode(xTo, source.apply(xTo));
     }
-
 
 
     @Override
@@ -192,21 +211,6 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
         }
         return interpolate(x, floorNode.x, floorNode.next.x, floorNode.y, floorNode.next.y);
     }
-
-    private Node floorNodeOfX(double x) {
-        if (x < head.x)
-            throw new IllegalArgumentException("x less than left bound of the list");
-        Node cur = head;
-        int i = 0;
-        do {
-            if (cur.x >= x)
-                return i == 0 ? getNode(0) : getNode(i - 1);
-            ++i;
-            cur = cur.next;
-        } while (cur != head);
-        return getNode(count);
-    }
-
 
     @Override
     public double apply(double x) {
