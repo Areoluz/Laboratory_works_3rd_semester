@@ -4,7 +4,6 @@ import functions.TabulatedFunction;
 import functions.factory.ArrayTabulatedFunctionFactory;
 import functions.factory.TabulatedFunctionFactory;
 import functions.Point;
-import functions.service.TabulatedFunctionOperationService;
 
 public class TabulatedDifferentialOperator implements DifferentialOperator<TabulatedFunction> {
 
