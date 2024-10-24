@@ -4,6 +4,9 @@ import exceptions.DifferentLengthException;
 import exceptions.InterpolationException;
 import exceptions.NotSortedException;
 
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
 public class LinkedListTabulatedFunction extends AbstractTabulatedFunction implements TabulatedFunction{
 
     static class Node {
@@ -210,6 +213,31 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
             throw new InterpolationException("Failed interpolation with 2 parameters");
         }
         return interpolate(x, floorNode.x, floorNode.next.x, floorNode.y, floorNode.next.y);
+    }
+
+    @Override
+    public Iterator<Point> iterator() {
+        return new Iterator<Point>() {
+            private Node node = head;
+
+            @Override
+            public boolean hasNext() {
+                return !(node == null);
+            }
+
+            @Override
+            public Point next() {
+                if (hasNext()) {
+                    Point p = new Point(node.x, node.y);
+                    if (node.next == head)
+                        node = null;
+                    else
+                        node = node.next;
+                    return p;
+                }
+                throw new NoSuchElementException();
+            }
+        };
     }
 
     @Override
