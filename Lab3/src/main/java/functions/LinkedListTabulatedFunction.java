@@ -66,6 +66,7 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
         return current;
     }
 
+
     protected Node floorNodeOfX(double x) {
         if (x < head.x)
             throw new IllegalArgumentException("x less than left bound of the list");

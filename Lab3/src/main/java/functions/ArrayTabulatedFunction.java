@@ -1,8 +1,11 @@
 package functions;
 import exceptions.InterpolationException;
 
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
 import java.util.Arrays;
-public class ArrayTabulatedFunction extends AbstractTabulatedFunction  {
+public class ArrayTabulatedFunction extends AbstractTabulatedFunction implements TabulatedFunction {
     private final double[] xValues;
     private final double[] yValues;
 
@@ -16,7 +19,27 @@ public class ArrayTabulatedFunction extends AbstractTabulatedFunction  {
         this.yValues = Arrays.copyOf(yValues, yValues.length);
         this.count = xValues.length;
     }
+    @Override
+    public Iterator<Point> iterator() {
+        return new Iterator<>() {
+            private int i = 0;
 
+            @Override
+            public boolean hasNext() {
+                return i < count;
+            }
+
+            @Override
+            public Point next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException("No more elements in the iterator");
+                }
+                Point point = new Point(xValues[i], yValues[i]);
+                i++;
+                return point;
+            }
+        };
+    }
     public  ArrayTabulatedFunction(MathFunction source, double xFrom, double xTo, int count){
         if(xFrom > xTo) {
             double temp = xTo;
@@ -40,7 +63,7 @@ public class ArrayTabulatedFunction extends AbstractTabulatedFunction  {
         }
     }
 
-    protected void setY(int index, double value) {
+    public void setY(int index, double value) {
         if (index < 0 || index >= count) {
             throw new IndexOutOfBoundsException("Index out of bounds");
         }
@@ -65,7 +88,7 @@ public class ArrayTabulatedFunction extends AbstractTabulatedFunction  {
     }
 
     @Override
-    protected double getX(int index) {
+    public double getX(int index) {
         if (index < 0 || index >= count) {
             throw new IndexOutOfBoundsException("Index out of bounds");
         }
@@ -73,7 +96,7 @@ public class ArrayTabulatedFunction extends AbstractTabulatedFunction  {
     }
 
     @Override
-    protected double getY(int index) {
+    public double getY(int index) {
         if (index < 0 || index >= count) {
             throw new IndexOutOfBoundsException("Index out of bounds");
         }
