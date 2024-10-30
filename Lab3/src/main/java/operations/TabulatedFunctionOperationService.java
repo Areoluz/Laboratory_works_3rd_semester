@@ -17,4 +17,14 @@ public class TabulatedFunctionOperationService {
 
         return points;
     }
+
+
+    // методы умножения и деления функций
+    public TabulatedFunction division(TabulatedFunction a, TabulatedFunction b) {
+        return doOperation(a, b, (x, y) -> x / y);
+    }
+
+    public TabulatedFunction multiplication(TabulatedFunction a, TabulatedFunction b) {
+        return doOperation(a, b, (x, y) -> x * y);
+    }
 }
