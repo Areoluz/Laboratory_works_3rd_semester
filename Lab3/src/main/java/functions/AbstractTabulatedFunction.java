@@ -33,6 +33,16 @@ public abstract class AbstractTabulatedFunction implements MathFunction {
         }
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getClass().getSimpleName()).append(" size = ").append(count).append("\n");
+
+        for (int i = 0; i < count; i++) {
+            sb.append("[").append(getX(i)).append("; ").append(getY(i)).append("]").append("\n");
+        }
+        return sb.toString().trim(); //убирает лишний перенос строки в конце
+    }
 
 
     public int getCount() {
