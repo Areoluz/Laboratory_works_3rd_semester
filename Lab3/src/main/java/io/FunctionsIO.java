@@ -19,7 +19,7 @@ public final class FunctionsIO {
         ObjectInputStream objectInput = new ObjectInputStream(stream);
         return (TabulatedFunction) objectInput.readObject();
     }
-    
+
     public static void writeTabulatedFunction(BufferedWriter writer, TabulatedFunction function) throws IOException {
         PrintWriter printWriter = new PrintWriter(writer);
         printWriter.println(function.getCount());

@@ -12,7 +12,7 @@ public class TabulatedFunctionFileOutputStream {
     public static void main(String[] args) {
         try (
                 FileOutputStream arrayFile = new FileOutputStream("output/binary function.bin");
-                FileOutputStream linkedListFile = new FileOutputStream("output/linked list function.bin");
+                FileOutputStream linkedListFile = new FileOutputStream("output/binary function.bin");
                 BufferedOutputStream arrayBuffer = new BufferedOutputStream(arrayFile);
                 BufferedOutputStream linkedListBuffer = new BufferedOutputStream(linkedListFile)
         ) {
