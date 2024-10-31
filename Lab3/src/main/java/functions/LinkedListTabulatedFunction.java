@@ -3,8 +3,7 @@ import exceptions.DifferentLengthOfArraysException;
 import exceptions.ArrayIsNotSortedException;
 import exceptions.InterpolationException;
 
-import java.io.Serial;
-import java.io.Serializable;
+import java.io.*;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -13,8 +12,10 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
     @Serial
     private static final long serialVersionUID = 2649483009277234910L;
 
-    static class Node {
+    static class Node implements Serializable {
 
+        @Serial
+        private static final long serialVersionUID = -1848268209872767415L;
         public Node next;
         public Node prev;
         public double x;
@@ -33,6 +34,7 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
     }
 
     private Node head;  // Голова списка
+    private transient int count;
 
     private void addNode(double x, double y) {
         Node newNode = new Node(x, y);
@@ -86,6 +88,19 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
         return getNode(count);
     }
 
+    // Восстанавливает поле count после десериализации
+    @Serial
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        count = 0;
+        Node current = head;
+        if (current != null) {
+            do {
+                count++;
+                current = current.next;
+            } while (current != head);
+        }
+    }
 
     // Конструктор с массивами xValues и yValues
     public LinkedListTabulatedFunction(double[] xValues, double[] yValues) {

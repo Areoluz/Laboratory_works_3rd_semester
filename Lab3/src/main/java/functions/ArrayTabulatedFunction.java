@@ -1,6 +1,8 @@
 package functions;
 import exceptions.InterpolationException;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Iterator;
@@ -67,6 +69,12 @@ public class ArrayTabulatedFunction extends AbstractTabulatedFunction implements
             Arrays.fill(yValues, source.apply(xFrom));
         }
     }
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();  // Десериализация всех полей
+        count = xValues.length;  // Устанавливаем count
+    }
+
 
     public void setY(int index, double value) {
         if (index < 0 || index >= count) {

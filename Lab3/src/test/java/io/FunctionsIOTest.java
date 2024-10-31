@@ -69,28 +69,40 @@ class FunctionsIOTest {
     }
 
     @Test
-    void serializeAndDeserializeFunction() throws IOException, ClassNotFoundException {
-        File tempFile = File.createTempFile("serialized_function", ".bin");
-        tempFile.deleteOnExit();
+    void testDeserialize() throws IOException, ClassNotFoundException {
+        // Создаем временный файл для хранения сериализованных данных
+        File tempFile = File.createTempFile("test_deserialize", ".bin");
+        tempFile.deleteOnExit(); // Удаляет временный файл после завершения теста
 
+        // Шаг 1: Создание функции и сериализация
         TabulatedFunction originalFunction = new LinkedListTabulatedFunction(
                 new double[]{0.0, 1.0, 2.0},
                 new double[]{0.0, 1.0, 4.0}
         );
 
-        try (BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(tempFile))) {
-            FunctionsIO.serialize(outputStream, originalFunction);
+        try (FileOutputStream fileOutputStream = new FileOutputStream(tempFile);
+             BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream)) {
+            FunctionsIO.serialize(bufferedOutputStream, originalFunction);
         }
 
+        // Шаг 2: Десериализация функции
         TabulatedFunction deserializedFunction;
-        try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(tempFile))) {
-            deserializedFunction = FunctionsIO.deserialize(inputStream);
+        try (FileInputStream fileInputStream = new FileInputStream(tempFile);
+             BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream)) {
+            deserializedFunction = FunctionsIO.deserialize(bufferedInputStream);
         }
 
-        assertEquals(originalFunction.getCount(), deserializedFunction.getCount());
-        for (int i = 0; i < originalFunction.getCount(); i++) {
-            assertEquals(originalFunction.getX(i), deserializedFunction.getX(i), 1e-9);
-            assertEquals(originalFunction.getY(i), deserializedFunction.getY(i), 1e-9);
+        // Шаг 3: Сравнение исходной и десериализованной функций
+        assertTabulatedFunctionsEqual(originalFunction, deserializedFunction);
+    }
+
+    private void assertTabulatedFunctionsEqual(TabulatedFunction expected, TabulatedFunction actual) {
+        assertEquals(expected.getCount(), actual.getCount(), "Количество точек не совпадает");
+
+        for (int i = 0; i < expected.getCount(); i++) {
+            assertEquals(expected.getX(i), actual.getX(i), 1e-9, "Значение X не совпадает на позиции " + i);
+            assertEquals(expected.getY(i), actual.getY(i), 1e-9, "Значение Y не совпадает на позиции " + i);
         }
     }
+
 }

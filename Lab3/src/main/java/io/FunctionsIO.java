@@ -15,10 +15,11 @@ public final class FunctionsIO {
         throw new UnsupportedOperationException("This class cannot be instantiated.");
     }
 
-    public static TabulatedFunction deserialize(BufferedInputStream stream) throws IOException, ClassNotFoundException {
-        ObjectInputStream objectInput = new ObjectInputStream(stream);
-        return (TabulatedFunction) objectInput.readObject();
+    static TabulatedFunction deserialize(BufferedInputStream stream) throws IOException, ClassNotFoundException {
+        var inp = new ObjectInputStream(stream);
+        return (TabulatedFunction) inp.readObject();
     }
+
     public static void serialize(BufferedOutputStream stream, TabulatedFunction function) throws IOException {
         ObjectOutputStream objectOutput = new ObjectOutputStream(stream);
         objectOutput.writeObject(function);

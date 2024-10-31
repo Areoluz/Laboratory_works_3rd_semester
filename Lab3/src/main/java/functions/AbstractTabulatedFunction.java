@@ -3,13 +3,14 @@ package functions;
 import exceptions.ArrayIsNotSortedException;
 import exceptions.DifferentLengthOfArraysException;
 
-public abstract class AbstractTabulatedFunction implements MathFunction {
+public abstract class AbstractTabulatedFunction implements MathFunction, TabulatedFunction {
 
     protected int count;
 
     protected abstract int floorIndexOfX(double index);
-    protected abstract double getX(int index);
-    protected abstract double getY(int index);
+    abstract public double getY(int index);
+    abstract public double getX(int index);
+
 
     protected abstract double extrapolateLeft(double x);     // Метод экстраполяции слева
     protected abstract double extrapolateRight(double x);     // Метод экстраполяции справа
@@ -35,21 +36,23 @@ public abstract class AbstractTabulatedFunction implements MathFunction {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getClass().getSimpleName()).append(" size = ").append(count).append("\n");
+        StringBuilder builder = new StringBuilder();
+        builder.append(getClass().getSimpleName()).append(" size = ").append(getCount()).append("\n");
 
-        for (int i = 0; i < count; i++) {
-            sb.append("[").append(getX(i)).append("; ").append(getY(i)).append("]").append("\n");
+        for (Point point : this) {
+            builder.append("[").append(point.x).append("; ").append(point.y).append("]\n");
         }
-        return sb.toString().trim(); //убирает лишний перенос строки в конце
+
+        return builder.toString().trim(); // Убираем последний перевод строки
     }
+
 
 
     public int getCount() {
         return count;
     }
 
-    protected int indexOfX(double x) {
+    public int indexOfX(double x) {
         for (int i = 0; i < count; i++) {
             if (getX(i) == x) {
                 return i;
@@ -72,8 +75,6 @@ public abstract class AbstractTabulatedFunction implements MathFunction {
         int floorIndex = floorIndexOfX(x); // Если x не найден
         return interpolate(x, floorIndex);
     }
-
-
 
 
 }
