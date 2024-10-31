@@ -3,10 +3,15 @@ import exceptions.DifferentLengthOfArraysException;
 import exceptions.ArrayIsNotSortedException;
 import exceptions.InterpolationException;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class LinkedListTabulatedFunction extends AbstractTabulatedFunction implements TabulatedFunction{
+public class LinkedListTabulatedFunction extends AbstractTabulatedFunction implements TabulatedFunction, Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 2649483009277234910L;
 
     static class Node {
 
