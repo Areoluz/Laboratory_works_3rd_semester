@@ -19,6 +19,11 @@ public final class FunctionsIO {
         ObjectInputStream objectInput = new ObjectInputStream(stream);
         return (TabulatedFunction) objectInput.readObject();
     }
+    public static void serialize(BufferedOutputStream stream, TabulatedFunction function) throws IOException {
+        ObjectOutputStream objectOutput = new ObjectOutputStream(stream);
+        objectOutput.writeObject(function);
+        stream.flush(); // Пробрасываем данные из буфера
+    }
 
     public static void writeTabulatedFunction(BufferedWriter writer, TabulatedFunction function) throws IOException {
         PrintWriter printWriter = new PrintWriter(writer);
@@ -57,6 +62,7 @@ public final class FunctionsIO {
         }
         return factory.create(xValues, yValues);
     }
+
     static TabulatedFunction readTabulatedFunction(BufferedInputStream inputStream, TabulatedFunctionFactory factory) throws IOException {
         var binput = new DataInputStream(inputStream);
         int size = binput.readInt();

@@ -1,11 +1,16 @@
 package functions;
 import exceptions.InterpolationException;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import java.util.Arrays;
-public class ArrayTabulatedFunction extends AbstractTabulatedFunction implements TabulatedFunction {
+public class ArrayTabulatedFunction extends AbstractTabulatedFunction implements TabulatedFunction, Serializable {
+    @Serial
+    private static final long serialVersionUID = 3621396615035252299L;
+
     private final double[] xValues;
     private final double[] yValues;
 
