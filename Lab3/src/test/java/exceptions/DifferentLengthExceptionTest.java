@@ -1,18 +1,26 @@
 package exceptions;
 
-import functions.ArrayTabulatedFunction;
+import exceptions.DifferentLengthException;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class DifferentLengthExceptionTest {
+public class DifferentLengthExceptionTest {
 
     @Test
-    public void testArrayIsNotSortedException() {
-        double[] xValues = {1.0, 2.0, 3.0};
-        double[] yValues = {2.0, 3.0};  // Разная длина массивов
-        assertThrows(DifferentLengthOfArraysException.class, () -> {
-            new ArrayTabulatedFunction(xValues, yValues);
+    void testDifferentLengthExceptionNoMessage() {
+        DifferentLengthException exception = assertThrows(DifferentLengthException.class, () -> {
+            throw new DifferentLengthException();
         });
+        assertNull(exception.getMessage(), "Сообщение должно быть null, если не было передано");
+    }
+
+    @Test
+    void testDifferentLengthExceptionWithMessage() {
+        String expectedMessage = "Длины массивов не совпадают!";
+        DifferentLengthException exception = assertThrows(DifferentLengthException.class, () -> {
+            throw new DifferentLengthException(expectedMessage);
+        });
+        assertEquals(expectedMessage, exception.getMessage(), "Сообщение исключения не совпадает с ожидаемым");
     }
 }

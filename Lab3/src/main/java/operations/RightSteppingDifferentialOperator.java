@@ -20,4 +20,5 @@ class RightSteppingDifferentialOperator extends SteppingDifferentialOperator {
     public double apply(double x) {
         throw new UnsupportedOperationException("RightSteppingDifferentialOperator does not support direct application.");
     }
+
 }

@@ -15,5 +15,20 @@ class ArrayIsNotSortedExceptionTest {
             new ArrayTabulatedFunction(xValues, yValues);
         });
     }
+    @Test
+    public void testArrayIsNotSortedExceptionNoMessage() {
+        ArrayIsNotSortedException exception = assertThrows(ArrayIsNotSortedException.class, () -> {
+            throw new ArrayIsNotSortedException();
+        });
+        assertNull(exception.getMessage(), "Сообщение должно быть null, если не было передано");
+    }
 
+    @Test
+    public void testArrayIsNotSortedExceptionWithMessage() {
+        String expectedMessage = "Массив не отсортирован!";
+        ArrayIsNotSortedException exception = assertThrows(ArrayIsNotSortedException.class, () -> {
+            throw new ArrayIsNotSortedException(expectedMessage);
+        });
+        assertEquals(expectedMessage, exception.getMessage(), "Сообщение исключения не совпадает с ожидаемым");
+    }
 }

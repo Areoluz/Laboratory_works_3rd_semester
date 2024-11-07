@@ -1,10 +1,7 @@
 package operations;
 
 import exceptions.InconsistentFunctionsException;
-import functions.ArrayTabulatedFunction;
-import functions.LinkedListTabulatedFunction;
-import functions.Point;
-import functions.TabulatedFunction;
+import functions.*;
 import functions.factory.ArrayTabulatedFunctionFactory;
 import functions.factory.LinkedListTabulatedFunctionFactory;
 import functions.factory.TabulatedFunctionFactory;
@@ -144,6 +141,70 @@ class TabulatedFunctionOperationServiceTest {
         service.setFactory(newFactory);
 
         Assertions.assertEquals(newFactory, service.getFactory());
+    }
+
+    @Test
+    void testMiddleSteppingDifferentialOperatorDerive() {
+        double step = 0.01;
+        MiddleSteppingDifferentialOperator operator = new MiddleSteppingDifferentialOperator(step);
+
+        MathFunction function = x -> x * x;
+
+        MathFunction derivative = operator.derive(function);
+
+        // Производная функции y = x^2 равна 2x
+        double x = 3.0;
+        double expectedDerivative = 2 * x;
+        double actualDerivative = derivative.apply(x);
+
+        Assertions.assertEquals(expectedDerivative, actualDerivative, 1e-2,
+                "Derived value for x^2 should be approximately equal to 2 * x.");
+    }
+
+    @Test
+    void testMiddleSteppingDifferentialOperatorDeriveWithSinFunction() {
+        double step = 0.01;
+        MiddleSteppingDifferentialOperator operator = new MiddleSteppingDifferentialOperator(step);
+
+        MathFunction function = Math::sin;
+
+        MathFunction derivative = operator.derive(function);
+
+        // Производная sin(x) равна cos(x)
+        double x = Math.PI / 4; // 45 градусов
+        double expectedDerivative = Math.cos(x);
+        double actualDerivative = derivative.apply(x);
+
+        Assertions.assertEquals(expectedDerivative, actualDerivative, 1e-2,
+                "Derived value for sin(x) should be approximately equal to cos(x).");
+    }
+    @Test
+    void testUnsupportedOperationExceptionForMiddleSteppingOperator() {
+        double step = 0.01;
+        MiddleSteppingDifferentialOperator operator = new MiddleSteppingDifferentialOperator(step);
+
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
+            operator.apply(2.0);
+        }, "Calling apply on MiddleSteppingDifferentialOperator should throw UnsupportedOperationException.");
+    }
+
+    @Test
+    void testUnsupportedOperationExceptionForRightSteppingOperator() {
+        double step = 0.01;
+        RightSteppingDifferentialOperator operator = new RightSteppingDifferentialOperator(step);
+
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
+            operator.apply(2.0);
+        }, "Calling apply on RightSteppingDifferentialOperator should throw UnsupportedOperationException.");
+    }
+    @Test
+    void testUnsupportedOperationExceptionForLeftSteppingOperator() {
+        double step = 0.01;
+        LeftSteppingDifferentialOperator operator = new LeftSteppingDifferentialOperator(step);
+
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
+            operator.apply(2.0);
+        }, "Calling apply on LeftSteppingDifferentialOperator should throw UnsupportedOperationException.");
     }
 }
 

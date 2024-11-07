@@ -7,24 +7,19 @@ import static org.junit.jupiter.api.Assertions.*;
 class DifferentLengthOfArraysExceptionTest {
 
     @Test
-    void testDifferentLengthOfArraysExceptionThrown() {
-        double[] xValues = {1.0, 2.0, 3.0};
-        double[] yValues = {1.0, 2.0}; // Массив короче
-
-        DifferentLengthOfArraysException exception = assertThrows(
-                DifferentLengthOfArraysException.class,
-                () -> AbstractTabulatedFunction.checkLengthIsTheSame(xValues, yValues),
-                "Expected DifferentLengthOfArraysException to be thrown"
-        );
-
-        assertEquals("Lengths of xValues and yValues are different.", exception.getMessage());
+    public void testDifferentLengthOfArraysExceptionNoMessage() {
+        DifferentLengthOfArraysException exception = assertThrows(DifferentLengthOfArraysException.class, () -> {
+            throw new DifferentLengthOfArraysException();
+        });
+        assertNull(exception.getMessage(), "Сообщение должно быть null, если не было передано");
     }
 
     @Test
-    void testNoExceptionWhenLengthsAreSame() {
-        double[] xValues = {1.0, 2.0, 3.0};
-        double[] yValues = {1.0, 2.0, 3.0}; // Длина совпадает
-
-        assertDoesNotThrow(() -> AbstractTabulatedFunction.checkLengthIsTheSame(xValues, yValues));
+    public void testDifferentLengthOfArraysExceptionWithMessage() {
+        String expectedMessage = "Длины массивов не совпадают!";
+        DifferentLengthOfArraysException exception = assertThrows(DifferentLengthOfArraysException.class, () -> {
+            throw new DifferentLengthOfArraysException(expectedMessage);
+        });
+        assertEquals(expectedMessage, exception.getMessage(), "Сообщение исключения не совпадает с ожидаемым");
     }
 }

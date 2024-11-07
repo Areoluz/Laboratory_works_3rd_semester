@@ -4,6 +4,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
 class ArrayTabulatedFunctionTest {
 
     private ArrayTabulatedFunction arrayFunction;
@@ -68,6 +71,7 @@ class ArrayTabulatedFunctionTest {
         Assertions.assertEquals(expected, actual, 0.0001);
     }
 
+
     @Test
     public void testExtrapolateLeft() {
         double expected = 0;
@@ -93,5 +97,37 @@ class ArrayTabulatedFunctionTest {
     @Test
     public void testInvalidSetYIndex() {
         Assertions.assertThrows(IndexOutOfBoundsException.class, () -> arrayFunction.setY(-1, 5));
+    }
+
+    @Test
+    public void testInvalidGetXIndex() {
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> arrayFunction.getX(-1));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> arrayFunction.getX(4));
+    }
+
+    @Test
+    public void testInvalidGetYIndex() {
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> arrayFunction.getY(-1));
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> arrayFunction.getY(4));
+    }
+
+    @Test
+    public void testIterator() {
+        Iterator<Point> iterator = arrayFunction.iterator();
+        Assertions.assertTrue(iterator.hasNext());
+
+        Point point1 = iterator.next();
+        Assertions.assertEquals(1.0, point1.x, 0.0001);
+        Assertions.assertEquals(2.0, point1.y, 0.0001);
+
+        Point point2 = iterator.next();
+        Assertions.assertEquals(2.0, point2.x, 0.0001);
+        Assertions.assertEquals(4.0, point2.y, 0.0001);
+
+        iterator.next();
+        iterator.next();
+
+        Assertions.assertFalse(iterator.hasNext());
+        Assertions.assertThrows(NoSuchElementException.class, iterator::next);
     }
 }
