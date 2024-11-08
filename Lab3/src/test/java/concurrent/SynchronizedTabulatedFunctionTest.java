@@ -101,7 +101,7 @@ class SynchronizedTabulatedFunctionTest {
         }
     }
     @Test
-    void sychronized(){
+    void sychronizedTest(){
         ArrayTabulatedFunction arr = new ArrayTabulatedFunction(new double[]{1, 2, 3}, new double[]{1, 2, 3});
         SynchronizedTabulatedFunction wrapper = new SynchronizedTabulatedFunction(arr);
         Assertions.assertEquals(3.0, (double) wrapper.doSynchronously(SynchronizedTabulatedFunction::getCount));
