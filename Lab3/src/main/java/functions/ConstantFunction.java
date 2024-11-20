@@ -14,4 +14,9 @@ public class ConstantFunction implements MathFunction {
     public double apply(double x) {
         return arg;
     }
+
+    @Override
+    public void stringWrite(StringBuilder sb) {
+        sb.append(arg);
+    }
 }

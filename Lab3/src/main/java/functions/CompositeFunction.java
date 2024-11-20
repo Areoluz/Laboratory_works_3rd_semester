@@ -12,5 +12,11 @@ public class CompositeFunction implements MathFunction{
     public double apply(double x){
         return secondFunction.apply(firstFunction.apply(x));
     }
-
+    @Override
+    public void stringWrite(StringBuilder sb) {
+        secondFunction.stringWrite(sb);
+        sb.append('{');
+        firstFunction.stringWrite(sb);
+        sb.append('}');
+    }
 }

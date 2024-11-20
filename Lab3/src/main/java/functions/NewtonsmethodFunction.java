@@ -47,4 +47,9 @@ public class NewtonsmethodFunction implements MathFunction {
     public double apply(double x) {
         return findRoot(x);
     }
+
+    @Override
+    public void stringWrite(StringBuilder sb) {
+        throw new UnsupportedOperationException("Пусть второй человек сделает.");
+    }
 }
