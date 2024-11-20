@@ -18,4 +18,18 @@ public interface TabulatedFunction extends MathFunction, Iterable<Point>{
     double leftBound();
 
     double rightBound();
+
+    @Override
+    default void stringWrite(StringBuilder sb) {
+        sb.append(this.getClass().getName());
+        sb.append("[");
+        for(Point p : this){
+            sb.append(p.x);
+            sb.append(",");
+            sb.append(p.y);
+            sb.append(";");
+        }
+        sb.deleteCharAt(sb.length()-1);
+        sb.append("]");
+    }
 }

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.Timestamp;
@@ -54,7 +55,7 @@ class LogReposTest {
         logRepos.save(savedLog);
 
         Optional<Log> updatedLog = logRepos.findById(savedLog.getId());
-        assertTrue(updatedLog.isPresent(), "Updated log should be present");
+        assertTrue(updatedLog.isPresent());
         assertEquals("Updated message", updatedLog.get().getMessage());
     }
 

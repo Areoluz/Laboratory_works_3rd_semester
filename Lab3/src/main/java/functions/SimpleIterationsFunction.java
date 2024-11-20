@@ -38,4 +38,9 @@ public class SimpleIterationsFunction implements MathFunction{
         return g.apply(x);
     }
 
+    @Override
+    public void stringWrite(StringBuilder sb) {
+        throw new UnsupportedOperationException("^_^ <- котик. пусть делает другой");
+    }
+
 }
