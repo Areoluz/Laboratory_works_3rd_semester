@@ -1,22 +1,14 @@
 package jpa.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.sql.Timestamp;
 
-@Data
 @Entity
 @Table(name = "Logs")
-@AllArgsConstructor
-@NoArgsConstructor
-
 public class Log {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     @Column(nullable = false)
     private String message;
@@ -24,6 +16,35 @@ public class Log {
     @Column(nullable = false)
     private Timestamp timestamp;
 
+    public Log() {
+    }
 
+    public Log(String message, Timestamp timestamp) {
+        this.message = message;
+        this.timestamp = timestamp;
+    }
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public Timestamp getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Timestamp timestamp) {
+        this.timestamp = timestamp;
+    }
 }

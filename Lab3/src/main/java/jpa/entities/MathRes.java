@@ -1,29 +1,62 @@
 package jpa.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.sql.Timestamp;
 
-@Data
 @Entity
 @Table(name = "MathFunc")
-@AllArgsConstructor
-@NoArgsConstructor
-
 public class MathRes {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     @Column(nullable = false)
-    private double x;
+    private Double x;
 
     @Column(nullable = false)
-    private double y;
+    private Double y;
 
     @Column(nullable = false)
-    private long hash;
+    private Long hash;
+
+    public MathRes() {
+    }
+
+    public MathRes(Double x, Double y, Long hash) {
+        this.x = x;
+        this.y = y;
+        this.hash = hash;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Double getX() {
+        return x;
+    }
+
+    public void setX(Double x) {
+        this.x = x;
+    }
+
+    public Double getY() {
+        return y;
+    }
+
+    public void setY(Double y) {
+        this.y = y;
+    }
+
+    public Long getHash() {
+        return hash;
+    }
+
+    public void setHash(Long hash) {
+        this.hash = hash;
+    }
 }

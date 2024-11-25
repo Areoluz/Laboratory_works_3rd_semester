@@ -8,8 +8,8 @@ import java.util.List;
 
 @Repository
 public interface MathResRepos extends CrudRepository<MathRes, Integer> {
-MathRes findByXAndHash(double x, long hash);
-List<MathRes> findByHash(long hash);
-List<MathRes> findByHashOrderByX(long hash);
-List<MathRes> findByXOrderByY(double x);
+    List<MathRes> findByHash(long hash);
+    MathRes findByXAndHash(double x, long hash);
+    void deleteByHash(long hash);
+    void deleteByXAndHash(double x, long hash);
 }

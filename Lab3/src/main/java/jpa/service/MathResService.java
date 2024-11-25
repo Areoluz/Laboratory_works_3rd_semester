@@ -3,18 +3,20 @@ package jpa.service;
 import functions.MathFunction;
 import jpa.entities.MathRes;
 import jpa.repository.MathResRepos;
-import lombok.AllArgsConstructor;
-import lombok.experimental.Delegate;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.OptionalDouble;
 
-@Component
-@AllArgsConstructor
+@Service
 public class MathResService {
-    @Delegate(types = MathResRepos.class)
-    private MathResRepos mathResRepos;
+    private final MathResRepos mathResRepos;
+
+    @Autowired
+    public MathResService(MathResRepos mathResRepos) {
+        this.mathResRepos = mathResRepos;
+    }
 
     public double applyCached(MathFunction func, double x) {
         OptionalDouble cache = getCached(func, x);
@@ -22,10 +24,7 @@ public class MathResService {
             return cache.getAsDouble();
         } else {
             double result = func.apply(x);
-            MathRes mathRes = new MathRes();
-            mathRes.setX(x);
-            mathRes.setY(result);
-            mathRes.setHash(func.hash());
+            MathRes mathRes = new MathRes(x, result, (long) func.hash());
             mathResRepos.save(mathRes);
             return result;
         }
@@ -38,6 +37,9 @@ public class MathResService {
         }
         return OptionalDouble.empty();
     }
+
+    @Transactional
+    public void deleteAll() {
+        mathResRepos.deleteAll();
+    }
 }
-
-
