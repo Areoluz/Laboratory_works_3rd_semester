@@ -10,7 +10,7 @@ import java.util.List;
 
 @Service
 public class MathService {
-    private final MathResRepos mathResRepository;
+    private MathResRepos mathResRepository;
 
     @Autowired
     public MathService(MathResRepos mathResRepository) {
