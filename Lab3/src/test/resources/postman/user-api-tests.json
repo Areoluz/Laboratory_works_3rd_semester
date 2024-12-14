@@ -1,0 +1,53 @@
+{
+  "info": {
+    "name": "UserController API Tests",
+    "_postman_id": "67890fghij-1234-klmn-5678-opqrstuv9012",
+    "description": "Tests for UserController endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get Index Page",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": [""]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get User Page",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/user",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["user"]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "access_token",
+      "value": "your_oauth2_token_here",
+      "type": "string"
+    }
+  ]
+}
