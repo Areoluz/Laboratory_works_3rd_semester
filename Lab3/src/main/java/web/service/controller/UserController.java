@@ -1,27 +1,27 @@
 package web.service.controller;
 
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
+import jpa.entities.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+import web.service.dto.RegisterDTO;
+import web.service.service.UserService;
 
-@Controller
+@RestController
 public class UserController {
-
-    @GetMapping("/")
-    public String index() {
-        return "index";
+    @Autowired
+    UserService userService;
+    @Autowired
+    PasswordEncoder passwordEncoder;
+    @PostMapping("/register")
+    public String registration(@RequestBody RegisterDTO registerDTO) {
+    User user = new User();
+    user.setUsername(registerDTO.getUsername());
+    user.setPassword(passwordEncoder.encode(registerDTO.getPassword()));
+    userService.createUser(user);
+    return "User registered successfully";
     }
 
-    @GetMapping("/user")
-    public String user(@AuthenticationPrincipal OAuth2User oAuth2User, Model model) {
-        if (oAuth2User != null) {
-            model.addAttribute("name", oAuth2User.getAttribute("name"));
-            model.addAttribute("login", oAuth2User.getAttribute("login"));
-            model.addAttribute("id", oAuth2User.getAttribute("id"));
-            model.addAttribute("email", oAuth2User.getAttribute("email"));
-        }
-        return "user";
-    }
 }

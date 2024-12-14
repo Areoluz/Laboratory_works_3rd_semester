@@ -5,6 +5,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import jakarta.validation.constraints.Email;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -12,7 +18,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Data
 @Table(name = "Users")
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,85 +30,28 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false, unique = true)
-    @Email
-    private String email;
-
-    private String name;
-
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
-    @Column(name = "role")
-    private Set<String> roles;
-
-    @Column(name = "oauth2_provider")
-    private String oauth2Provider;
-
-    @Column(name = "oauth2_provider_id")
-    private String oauth2ProviderId;
-
-    // Getters and Setters for Lombok annotations compatibility
-    public String getUsername() {
-        return username;
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
     }
 
-    public String getPassword() {
-        return password;
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Set<String> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(Set<String> roles) {
-        this.roles = roles;
-    }
-
-    public String getOauth2Provider() {
-        return oauth2Provider;
-    }
-
-    public void setOauth2Provider(String oauth2Provider) {
-        this.oauth2Provider = oauth2Provider;
-    }
-
-    public String getOauth2ProviderId() {
-        return oauth2ProviderId;
-    }
-
-    public void setOauth2ProviderId(String oauth2ProviderId) {
-        this.oauth2ProviderId = oauth2ProviderId;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

@@ -1,4 +1,4 @@
-package web.service;
+package web.service.service;
 
 import jpa.entities.MathRes;
 import jpa.repository.MathResRepos;
@@ -10,9 +10,9 @@ import java.util.List;
 
 @Service
 public class MathService {
+    @Autowired
     private MathResRepos mathResRepository;
 
-    @Autowired
     public MathService(MathResRepos mathResRepository) {
         this.mathResRepository = mathResRepository;
     }
