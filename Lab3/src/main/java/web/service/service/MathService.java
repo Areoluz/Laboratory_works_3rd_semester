@@ -43,4 +43,16 @@ public class MathService {
     public void deleteAll() {
         mathResRepository.deleteAll();
     }
+
+    // Добавить новую запись
+    @Transactional
+    public MathRes addMathRes(MathRes mathRes) {
+        return mathResRepository.save(mathRes);
+    }
+
+    // Добавить несколько записей
+    @Transactional
+    public List<MathRes> addMathResList(List<MathRes> mathResList) {
+        return (List<MathRes>) mathResRepository.saveAll(mathResList);
+    }
 }

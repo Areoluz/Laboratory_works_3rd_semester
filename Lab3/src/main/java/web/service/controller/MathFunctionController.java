@@ -64,4 +64,28 @@ public class MathFunctionController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error deleting math results by hash", e);
         }
     }
+
+    // Добавить новый результат
+    @Operation(summary = "Add a new math result", description = "Adds a new mathematical function result to the database")
+    @PostMapping
+    public ResponseEntity<MathRes> addMathRes(@RequestBody MathRes mathRes) {
+        try {
+            MathRes savedMathRes = mathService.addMathRes(mathRes);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedMathRes);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error adding new math result", e);
+        }
+    }
+
+    // Добавить несколько результатов
+    @Operation(summary = "Add multiple math results", description = "Adds multiple mathematical function results to the database")
+    @PostMapping("/bulk")
+    public ResponseEntity<List<MathRes>> addMathResList(@RequestBody List<MathRes> mathResList) {
+        try {
+            List<MathRes> savedMathResList = mathService.addMathResList(mathResList);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedMathResList);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error adding multiple math results", e);
+        }
+    }
 }
