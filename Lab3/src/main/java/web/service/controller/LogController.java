@@ -64,4 +64,26 @@ public class LogController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error deleting all logs", e);
         }
     }
+
+    @Operation(summary = "Add a new log", description = "Adds a new log entry to the database")
+    @PostMapping
+    public ResponseEntity<Log> addLog(@RequestBody Log log) {
+        try {
+            Log createdLog = logService.addLog(log);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdLog);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error adding log", e);
+        }
+    }
+
+    @Operation(summary = "Update an existing log", description = "Updates an existing log entry")
+    @PutMapping("/{id}")
+    public ResponseEntity<Log> updateLog(@PathVariable int id, @RequestBody Log updatedLog) {
+        try {
+            Log log = logService.updateLog(id, updatedLog);
+            return ResponseEntity.ok(log);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error updating log", e);
+        }
+    }
 }

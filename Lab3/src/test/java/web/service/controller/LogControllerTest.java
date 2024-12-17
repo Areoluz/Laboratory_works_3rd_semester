@@ -114,4 +114,50 @@ class LogControllerTest {
         mockMvc.perform(get("/api/logs/sorted"))
                 .andExpect(status().isInternalServerError());
     }
+
+    @Test
+    void addLogShouldReturnCreated() throws Exception {
+        Log newLog = new Log();
+        newLog.setId(3);
+        newLog.setMessage("New log message");
+        newLog.setTimestamp(Timestamp.from(Instant.now()));
+
+        // Преобразуем Timestamp в строку с нужным форматом
+        String timestampString = newLog.getTimestamp().toInstant().toString(); // Преобразуем в ISO 8601
+
+        when(logService.addLog(any(Log.class))).thenReturn(newLog);
+
+        mockMvc.perform(post("/api/logs")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"message\":\"New log message\",\"timestamp\":\"" + timestampString + "\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(3))
+                .andExpect(jsonPath("$.message").value("New log message"));
+
+        verify(logService).addLog(any(Log.class));
+    }
+
+    @Test
+    void updateLogShouldReturnUpdated() throws Exception {
+        Log updatedLog = new Log();
+        updatedLog.setId(1);
+        updatedLog.setMessage("Updated log message");
+        updatedLog.setTimestamp(Timestamp.from(Instant.now()));
+
+        // Преобразуем Timestamp в строку с нужным форматом
+        String timestampString = updatedLog.getTimestamp().toInstant().toString(); // Преобразуем в ISO 8601
+
+        when(logService.updateLog(anyInt(), any(Log.class))).thenReturn(updatedLog);
+
+        mockMvc.perform(put("/api/logs/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"message\":\"Updated log message\",\"timestamp\":\"" + timestampString + "\"}"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.message").value("Updated log message"));
+
+        verify(logService).updateLog(eq(1), any(Log.class));
+    }
 }

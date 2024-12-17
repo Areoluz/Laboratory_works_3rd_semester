@@ -121,4 +121,55 @@ class MathFunctionControllerTest {
         mockMvc.perform(get("/api/math"))
                 .andExpect(status().isInternalServerError());
     }
+
+    @Test
+    void addMathResShouldReturnCreated() throws Exception {
+        MathRes newMathRes = new MathRes(5.0, 25.0, 987654L);
+        newMathRes.setId(3); // предполагаем, что id генерируется сервером
+
+        when(mathService.addMathRes(any(MathRes.class))).thenReturn(newMathRes);
+
+        mockMvc.perform(post("/api/math")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{ \"x\": 5.0, \"y\": 25.0, \"hash\": 987654 }"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(3))
+                .andExpect(jsonPath("$.x").value(5.0))
+                .andExpect(jsonPath("$.y").value(25.0))
+                .andExpect(jsonPath("$.hash").value(987654));
+
+        verify(mathService).addMathRes(any(MathRes.class));
+    }
+
+    @Test
+    void addBulkMathResShouldReturnCreated() throws Exception {
+        MathRes newMathRes1 = new MathRes(5.0, 25.0, 987654L);
+        MathRes newMathRes2 = new MathRes(6.0, 36.0, 123987L);
+        List<MathRes> newMathResList = Arrays.asList(newMathRes1, newMathRes2);
+
+        when(mathService.addMathResList(anyList())).thenReturn(newMathResList);
+
+        mockMvc.perform(post("/api/math/bulk")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("[{ \"x\": 5.0, \"y\": 25.0, \"hash\": 987654 }, { \"x\": 6.0, \"y\": 36.0, \"hash\": 123987 }]"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$[0].x").value(5.0))
+                .andExpect(jsonPath("$[0].y").value(25.0))
+                .andExpect(jsonPath("$[0].hash").value(987654))
+                .andExpect(jsonPath("$[1].x").value(6.0))
+                .andExpect(jsonPath("$[1].y").value(36.0))
+                .andExpect(jsonPath("$[1].hash").value(123987));
+
+        verify(mathService).addMathResList(anyList());
+    }
+
+    @Test
+    void addMathResShouldReturnBadRequestOnInvalidData() throws Exception {
+        mockMvc.perform(post("/api/math")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{ \"x\": \"invalid\", \"y\": 25.0, \"hash\": 987654 }"))
+                .andExpect(status().isBadRequest());
+
+        verify(mathService, never()).addMathRes(any(MathRes.class));
+    }
 }
