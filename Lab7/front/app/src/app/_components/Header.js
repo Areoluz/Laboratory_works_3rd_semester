@@ -10,6 +10,10 @@ import './Header.css';
 
 import CreateFunctionModal from './modals/CreateFunctionModal';
 import IntegralModal from './modals/IntegralModal';
+import ComplexFunctionModal from "@/app/_components/modals/ComplexFunctionModal";
+import FunctionOperationsModal from "@/app/_components/modals/FunctionOperationsModal";
+import SettingsModal from "@/app/_components/modals/SettingsModal";
+import GraphModal from "@/app/_components/modals/GraphModal";
 
 function Header() {
     const [currentTheme, setCurrentTheme] = useState('winter');
@@ -31,7 +35,11 @@ function Header() {
         "synthwave",
         "forest",
         "winter",
-        "lemonade"
+        "lemonade",
+        "dracula",
+        "cmyk",
+        "autumn",
+        "pastel"
     ];
 
     return (
@@ -57,7 +65,7 @@ function Header() {
                         <li>
                             <a
                                 onClick={() => {
-                                    setOpenModal('createCompositeFunction');
+                                    setOpenModal('createComplexFunction');
                                     setIsSidebarOpen(false);
                                 }}
                                 className="flex items-center p-2 rounded-lg hover:bg-base-300 dark:hover:bg-base-700"
@@ -142,14 +150,6 @@ function Header() {
                 </div>
             </div>
 
-            {/* Modals */}
-            {openModal === 'createFunction' && (
-                <CreateFunctionModal onClose={() => setOpenModal(null)}/>
-            )}
-            {openModal === 'integral' && (
-                <IntegralModal onClose={() => setOpenModal(null)}/>
-            )}
-
             {/* Theme Modal */}
             <dialog id="theme_modal" className="modal">
                 <div className="modal-box bg-base-100 dark:bg-base-800 text-base-content dark:text-base-content">
@@ -175,6 +175,59 @@ function Header() {
                     </div>
                 </div>
             </dialog>
+
+            {openModal === 'createFunction' && (
+                <CreateFunctionModal
+                    isOpen={openModal === 'createFunction'}
+                    onClose={() => setOpenModal(null)}
+                    onCreate={(data) => {
+                        console.log('Созданная функция:', data);
+                        setOpenModal(null);
+                    }}
+                />
+            )}
+            {openModal === 'createComplexFunction' && (
+                <ComplexFunctionModal
+                    isOpen={openModal === 'createComplexFunction'}
+                    onClose={() => setOpenModal(null)}
+                    onCreate={(data) => {
+                        console.log('Созданная функция:', data);
+                        setOpenModal(null);
+                    }}
+                    availableFunctions={[
+                        { id: 1, name: 'Квадрат (SqrFunction)', type: 'simple' },
+                        { id: 2, name: 'Синус (SinFunction)', type: 'simple' },
+                        { id: 3, name: 'Косинус (CosFunction)', type: 'simple' },
+                        { id: 4, name: 'Сложная функция 1', type: 'complex' },
+                        { id: 5, name: 'Сложная функция 2', type: 'complex' },
+                    ]} // Список доступных функций
+                />
+            )}
+            {openModal === 'operations' && (
+                <FunctionOperationsModal
+                    isOpen={openModal === 'operations'}
+                    onClose={() => setOpenModal(null)}
+                />
+            )}
+            {openModal === 'integral' && (
+                <IntegralModal
+                    isOpen={openModal === 'integral'}
+                    onClose={() => setOpenModal(null)}
+                />
+            )}
+            {openModal === 'settings' && (
+                <SettingsModal
+                    isOpen={openModal === 'settings'}
+                    onClose={() => setOpenModal(null)}
+                />
+            )}
+            {openModal === 'graph' && (
+                <GraphModal
+                    isOpen={openModal === 'graph'}
+                    onClose={() => setOpenModal(null)}
+                />
+            )}
+
         </div>
     );
 }

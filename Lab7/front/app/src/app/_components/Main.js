@@ -42,7 +42,7 @@ function Main() {
                 <h1 className="text-md mb-8 text-base-content">Для создания функции нажмите + на панели сбоку</h1>
 
                 {/* Таблица */}
-                <table className="table table-zebra w-full text-base-content">
+                <table className="table w-full text-base-content">
                     <thead>
                     <tr>
                         <th>Имя функции</th>
@@ -60,13 +60,13 @@ function Main() {
                             <td>
                                 <button
                                     onClick={() => handleView(func.id)}
-                                    className="btn mr-2"
+                                    className="btn btn-primary mr-2"
                                 >
                                     Просмотреть
                                 </button>
                                 <button
                                     onClick={() => handleDelete(func.id)}
-                                    className="btn"
+                                    className="btn btn-secondary"
                                 >
                                     Удалить
                                 </button>

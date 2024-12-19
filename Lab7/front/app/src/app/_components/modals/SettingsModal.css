@@ -1,0 +1,33 @@
+/* Кастомизация радиокнопок */
+.custom-radio {
+    -webkit-appearance: none; /* Для Safari */
+    -moz-appearance: none; /* Для Firefox */
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #999;
+    outline: none;
+    position: relative;
+    transition: all 0.3s;
+}
+
+.custom-radio:checked {
+    border-color: #4CAF50; /* Зеленый цвет для активного состояния */
+}
+
+.custom-radio:checked::before {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 10px;
+    height: 10px;
+    background-color: #4CAF50; /* Зеленая точка в центре */
+    border-radius: 50%;
+}
+
+.custom-radio:hover {
+    cursor: pointer;
+    border-color: #4CAF50; /* Зеленый цвет при наведении */
+}

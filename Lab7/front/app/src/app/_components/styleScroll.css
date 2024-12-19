@@ -1,0 +1,25 @@
+/* Скрыть полосу прокрутки по умолчанию */
+.scroll-container {
+    overflow-y: scroll;
+    scrollbar-width: thin; /* Для Firefox (обеспечивает тонкую полосу прокрутки) */
+    scrollbar-color: transparent transparent; /* Полоса и фон скрыты */
+}
+
+/* Показать полосу прокрутки только при наведении */
+.scroll-container:hover {
+    scrollbar-color: rgba(0, 0, 0, 0.5) rgba(0, 0, 0, 0); /* Цвет полосы прокрутки */
+}
+
+/* Для Webkit-браузеров (Chrome, Safari) */
+.scroll-container::-webkit-scrollbar {
+    width: 6px; /* Устанавливаем ширину полосы прокрутки */
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.5); /* Цвет полосы прокрутки */
+    border-radius: 3px; /* Скругление углов */
+}
+
+.scroll-container::-webkit-scrollbar-track {
+    background-color: transparent; /* Прозрачный фон */
+}

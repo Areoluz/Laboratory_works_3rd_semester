@@ -55,6 +55,10 @@ module.exports = {
       "forest",
       "winter",
       "lemonade",
+      "dracula",
+      "cmyk",
+      "autumn",
+      "pastel",
     ],
   },
 }
