@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Добавьте эти стили в ваш глобальный CSS файл */
+html,
+body {
+  @apply h-full w-full m-0 overflow-x-hidden;
+}
+
+#__next {
+  @apply h-full w-full;
+}
+
+@media (max-width: 768px) {
+    html {
+      font-size: 14px;
+    }
+    
+    .text-2xl {
+      font-size: 1.25rem !important; /* 20px */
+    }
+    
+    .text-xl {
+      font-size: 1.125rem !important; /* 18px */
+    }
+    
+    .btn {
+      font-size: 0.75rem !important; /* 12px */
+    }
+    
+    .input, .select, .textarea {
+      font-size: 0.75rem !important;
+    }
+    
+    .table {
+      font-size: 0.75rem !important;
+    }
+    
+    .label-text {
+      font-size: 0.75rem !important;
+    }
+    
+    .badge {
+      font-size: 0.7rem !important;
+    }
+  }
+  
+  /* Для очень маленьких экранов */
+  @media (max-width: 480px) {
+    html {
+      font-size: 12px;
+    }
+  }
