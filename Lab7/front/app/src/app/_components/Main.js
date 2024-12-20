@@ -95,78 +95,82 @@ function Main() {
     };
 
     return (
-        <div className="flex-1 flex flex-col overflow-hidden">
-            <div className="flex-1 overflow-auto p-4">
-                <h1 className="text-xl font-semibold mb-4 text-base-content">
-                    Список табулированных функций
-                </h1>
-                <h1 className="text-md mb-8 text-base-content">
-                    Для создания функции нажмите + на панели сбоку
-                </h1>
+        <div>
+            <h1 className='text-xl md:text-2xl font-bold mb-4 text-base-content'>
+                Список табулированных функций
+            </h1>
+            <div className="flex-1 overflow-hidden flex flex-col">
+                <div className='flex flex-col gap-6'>
+                    <div className="bg-base-100 dark:bg-base-700 p-6 rounded-lg shadow-md">
+                        <h1 className="text-md mb-8 text-base-content">
+                            Для создания функции нажмите + на панели сбоку
+                        </h1>
 
-                {/* Контейнер для "таблицы" */}
-                <div className="overflow-x-auto">
-                    <div className="flex w-full mb-2 text-base-content">
-                        <div className="w-1/4 font-semibold">Hash</div>
-                        <div className="w-1/4 font-semibold">Количество точек</div>
-                        <div className="w-1/2 font-semibold">Действия</div>
-                    </div>
-                    <div>
-                        {functions.map((func, index) => (
-                            <div key={func.hash}>
-                                <div className="flex w-full mb-2 text-base-content">
-                                    <div className="w-1/4">{func.hash}</div>
-                                    <div className="w-1/4">{func.points.length}</div>
-                                    {/* Количество пар x-y */}
-                                    <div className="w-1/2">
-                                        <button
-                                            onClick={() => openModal(func)}
-                                            className="btn btn-primary mr-2"
-                                        >
-                                            Просмотреть
-                                        </button>
-                                        <button
-                                            onClick={() => deleteFunction(func.hash)}
-                                            className="btn btn-secondary"
-                                        >
-                                            Удалить
-                                        </button>
-                                    </div>
-                                </div>
-                                {/* Добавляем разделительную полоску, кроме последней функции */}
-                                {index !== functions.length - 1 && <div className="border-t my-2"></div>}
+                        {/* Контейнер для "таблицы" */}
+                        <div className="overflow-x-auto">
+                            <div className="flex w-full mb-2 text-base-content">
+                                <div className="w-1/4 font-semibold">Hash</div>
+                                <div className="w-1/4 font-semibold">Количество точек</div>
+                                <div className="w-1/2 font-semibold">Действия</div>
                             </div>
-                        ))}
+                            <div>
+                                {functions.map((func, index) => (
+                                    <div key={func.hash}>
+                                        <div className="flex w-full mb-2 text-base-content">
+                                            <div className="w-1/4">{func.hash}</div>
+                                            <div className="w-1/4">{func.points.length}</div>
+                                            {/* Количество пар x-y */}
+                                            <div className="w-1/2">
+                                                <button
+                                                    onClick={() => openModal(func)}
+                                                    className="btn btn-primary mr-2"
+                                                >
+                                                    Просмотреть
+                                                </button>
+                                                <button
+                                                    onClick={() => deleteFunction(func.hash)}
+                                                    className="btn btn-secondary"
+                                                >
+                                                    Удалить
+                                                </button>
+                                            </div>
+                                        </div>
+                                        {/* Добавляем разделительную полоску, кроме последней функции */}
+                                        {index !== functions.length - 1 && <div className="border-t my-2"></div>}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            {/* Модальное окно */}
-            {isModalOpen && modalData && (
-                <div
-                    id="modal-overlay"
-                    className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-                    onClick={handleOutsideClick}
-                >
+                {/* Модальное окно */}
+                {isModalOpen && modalData && (
                     <div
-                        className="bg-white p-6 rounded-lg shadow-md w-full max-w-lg"
-                        onClick={(e) => e.stopPropagation()} // Останавливаем всплытие клика внутри модального окна
+                        id="modal-overlay"
+                        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+                        onClick={handleOutsideClick}
                     >
-                        <h2 className="text-xl font-bold mb-4 text-primary-content">Данные функции</h2>
-                        <div className="text-base-content">
-                            {modalData.points.map((point, idx) => (
-                                <p key={idx}>
-                                    <strong>Точка {idx + 1}:</strong> x = {point.x}, y = {point.y}
-                                </p>
-                            ))}
-                        </div>
-                        <div className="mt-4 flex justify-end">
-                            <button onClick={closeModal} className="btn btn-secondary">Закрыть</button>
+                        <div
+                            className="bg-white p-6 rounded-lg shadow-md w-full max-w-lg"
+                            onClick={(e) => e.stopPropagation()} // Останавливаем всплытие клика внутри модального окна
+                        >
+                            <h2 className="text-xl font-bold mb-4 text-primary-content">Данные функции</h2>
+                            <div className="text-base-content">
+                                {modalData.points.map((point, idx) => (
+                                    <p key={idx}>
+                                        <strong>Точка {idx + 1}:</strong> x = {point.x}, y = {point.y}
+                                    </p>
+                                ))}
+                            </div>
+                            <div className="mt-4 flex justify-end">
+                                <button onClick={closeModal} className="btn btn-secondary">Закрыть</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )}
+            </div>
     );
 }
 

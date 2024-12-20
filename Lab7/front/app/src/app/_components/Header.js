@@ -6,6 +6,7 @@ import { CgMathPercent } from "react-icons/cg";
 import { TbMathIntegral } from "react-icons/tb";
 import { IoSettingsSharp } from "react-icons/io5";
 import { MdAutoGraph } from "react-icons/md";
+import { TiPlus } from "react-icons/ti";
 import './Header.css';
 
 import CreateFunctionModal from './modals/CreateFunctionModal';
@@ -57,7 +58,7 @@ function Header() {
                                 className="flex items-center p-2 rounded-lg hover:bg-base-300 dark:hover:bg-base-700"
                             >
                                 <div className="tooltip tooltip-right" data-tip="Создание функции">
-                                    <FaPlus size={20} className="text-base-content"/>
+                                    <TiPlus size={25} className="text-base-content"/>
                                 </div>
                                 <span className="ml-3 lg:hidden text-base-content">Создание функции</span>
                             </a>
@@ -71,7 +72,7 @@ function Header() {
                                 className="flex items-center p-2 rounded-lg hover:bg-base-300 dark:hover:bg-base-700"
                             >
                                 <div className="tooltip tooltip-right" data-tip="Создание сложной функции">
-                                    <FaPlusCircle size={20} className="text-base-content"/>
+                                    <FaPlusCircle size={25} className="text-base-content"/>
                                 </div>
                                 <span className="ml-3 lg:hidden text-base-content">Создание сложной функции</span>
                             </a>
@@ -85,7 +86,7 @@ function Header() {
                                 className="flex items-center p-2 rounded-lg hover:bg-base-300 dark:hover:bg-base-700"
                             >
                                 <div className="tooltip tooltip-right" data-tip="Операции">
-                                    <CgMathPercent size={20} className="text-base-content"/>
+                                    <CgMathPercent size={25} className="text-base-content"/>
                                 </div>
                                 <span className="ml-3 lg:hidden text-base-content">Операции</span>
                             </a>
@@ -99,7 +100,7 @@ function Header() {
                                 className="flex items-center p-2 rounded-lg hover:bg-base-300 dark:hover:bg-base-700"
                             >
                                 <div className="tooltip tooltip-right" data-tip="Интеграл">
-                                    <TbMathIntegral size={20} className="text-base-content"/>
+                                    <TbMathIntegral size={25} className="text-base-content"/>
                                 </div>
                                 <span className="ml-3 lg:hidden text-base-content">Интеграл</span>
                             </a>
@@ -113,7 +114,7 @@ function Header() {
                                 className="flex items-center p-2 rounded-lg hover:bg-base-300 dark:hover:bg-base-700"
                             >
                                 <div className="tooltip tooltip-right" data-tip="Настройки">
-                                    <IoSettingsSharp size={20} className="text-base-content"/>
+                                    <IoSettingsSharp size={25} className="text-base-content"/>
                                 </div>
                                 <span className="ml-3 lg:hidden text-base-content">Настройки</span>
                             </a>
@@ -127,7 +128,7 @@ function Header() {
                                 className="flex items-center p-2 rounded-lg hover:bg-base-300 dark:hover:bg-base-700"
                             >
                                 <div className="tooltip tooltip-right" data-tip="Графики">
-                                    <MdAutoGraph size={20} className="text-base-content"/>
+                                    <MdAutoGraph size={25} className="text-base-content"/>
                                 </div>
                                 <span className="ml-3 lg:hidden text-base-content">Графики</span>
                             </a>
@@ -141,7 +142,7 @@ function Header() {
                                 className="flex items-center p-2 rounded-lg hover:bg-base-300 dark:hover:bg-base-700"
                             >
                                 <div className="tooltip tooltip-right" data-tip="Выбор темы">
-                                    <FaPalette size={20} className="text-base-content"/>
+                                    <FaPalette size={25} className="text-base-content"/>
                                 </div>
                                 <span className="ml-3 lg:hidden text-base-content">Выбор темы</span>
                             </a>
