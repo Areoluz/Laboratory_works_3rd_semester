@@ -1,6 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
+import axios from 'axios';
+
+const generateUniqueId = () => {
+    return `${Date.now().toString().slice(-3)}${Math.floor(Math.random() * 1000).toString().padStart(2, '0')}`;
+};
+
 
 function CreateFunctionModal({ isOpen, onClose, onCreate }) {
     const [scenario, setScenario] = useState(null); // null, 'array', or 'mathFunction'
@@ -10,13 +16,14 @@ function CreateFunctionModal({ isOpen, onClose, onCreate }) {
     const [intervalStart, setIntervalStart] = useState('');
     const [intervalEnd, setIntervalEnd] = useState('');
     const [pointCountMath, setPointCountMath] = useState('');
+    const [functionId, setFunctionId] = useState(generateUniqueId()); // Генерация уникального ID для функции
 
     const handleGenerateTable = () => {
         const rows = Array.from({ length: Number(pointCount) }, () => ({ x: '', y: '' }));
         setTableData(rows);
     };
 
-    const handleCreateArrayFunction = () => {
+    const handleCreateArrayFunction = async () => {
         const hasEmptyFields = tableData.some(row => row.x === '' || row.y === '');
         if (hasEmptyFields) {
             alert('Все значения должны быть заполнены.');
@@ -29,11 +36,40 @@ function CreateFunctionModal({ isOpen, onClose, onCreate }) {
             return;
         }
 
-        onCreate({ type: 'array', data: tableData });
-        onClose();
+        const hash = generateUniqueId();
+        // Генерация данных в нужном формате с уникальными id и хэшами
+        const data = tableData.map((row, index) => ({
+            id: index, // Используем индекс как уникальный id
+            x: Number(row.x), // Преобразуем x в число
+            y: Number(row.y), // Преобразуем y в число
+            hash, // Генерация уникального хэша
+        }));
+
+        console.log(data);
+
+        try {
+            // Используем axios для выполнения запроса
+            const response = await axios.post('/api/math/bulk', data, {
+                baseURL: process.env.NEXT_PUBLIC_API_BASE_URL, // Базовый URL через прокси
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            console.log(response.data);
+            // После успешного запроса вызываем onCreate и закрываем модальное окно
+            onCreate({ type: 'array', data });
+            onClose();
+        } catch (error) {
+            console.error('Ошибка при добавлении функции:', error);
+            if (error.response) {
+                console.error('Ответ от сервера:', error.response.data);
+            }
+            alert('Ошибка при добавлении функции. Попробуйте снова.');
+        }
     };
 
-    const handleCreateMathFunction = () => {
+    const handleCreateMathFunction = async () => {
         if (!functionSelect || pointCountMath < 2 || intervalStart >= intervalEnd) {
             alert('Введите корректные значения.');
             return;
@@ -42,10 +78,32 @@ function CreateFunctionModal({ isOpen, onClose, onCreate }) {
         const step = (intervalEnd - intervalStart) / (pointCountMath - 1);
         const xValues = Array.from({ length: pointCountMath }, (_, i) => intervalStart + i * step);
         const yValues = xValues.map(x => evaluateMathFunction(functionSelect, x)); // Ваша логика вычисления
-        const data = xValues.map((x, i) => ({ x, y: yValues[i] }));
 
-        onCreate({ type: 'mathFunction', data });
-        onClose();
+        const hash = generateHash(); // Генерация одного хэша для всей функции
+        const data = xValues.map((x, i) => ({
+            x,
+            y: yValues[i],
+            hash, // Все точки имеют одинаковый хеш
+            functionId, // ID функции
+        }));
+
+        console.log(data);
+
+        try {
+            const response = await axios.post('/api/math', data, {
+                baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            console.log(response.data);
+            onCreate({ type: 'mathFunction', data });
+            onClose();
+        } catch (error) {
+            console.error('Ошибка при добавлении функции:', error);
+            alert('Ошибка при добавлении функции. Попробуйте снова.');
+        }
     };
 
     const evaluateMathFunction = (func, x) => {
@@ -55,6 +113,10 @@ function CreateFunctionModal({ isOpen, onClose, onCreate }) {
             case 'cos': return Math.cos(x);
             default: return x;
         }
+    };
+
+    const generateHash = () => {
+        return Math.floor(Math.random() * 1000000000); // Генерация случайного хэша
     };
 
     const handleOutsideClick = (e) => {

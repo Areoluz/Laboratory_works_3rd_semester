@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { FaUserCircle, FaPalette, FaPlus, FaPlusCircle } from 'react-icons/fa';
+import { FaPalette, FaPlus, FaPlusCircle } from 'react-icons/fa';
 import { CgMathPercent } from "react-icons/cg";
 import { TbMathIntegral } from "react-icons/tb";
 import { IoSettingsSharp } from "react-icons/io5";
