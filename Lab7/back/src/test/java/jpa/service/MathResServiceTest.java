@@ -1,6 +1,6 @@
 package jpa.service;
 
-import functions.IdentifyFunction;
+import functions.IdentityFunction;
 import functions.MathFunction;
 import functions.SqrFunction;
 import jpa.DbConfig;
@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.stereotype.Service;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,7 +22,7 @@ class MathResServiceTest {
     @Test
     void applyAndCacheTest() {
         mathResService.deleteAll();
-        MathFunction func = new SqrFunction().andThen(new IdentifyFunction());
+        MathFunction func = new SqrFunction().andThen(new IdentityFunction());
         assertTrue(mathResService.getCached(func, 0).isEmpty());
 
         assertEquals(mathResService.applyCached(func, 0), 0.0, 0.00001);

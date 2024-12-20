@@ -82,6 +82,7 @@ function Main() {
         setIsModalOpen(true);
     };
 
+<<<<<<< Updated upstream
     // Закрытие модального окна
     const closeModal = () => {
         setIsModalOpen(false);
@@ -170,6 +171,34 @@ function Main() {
                         </div>
                     </div>
                 )}
+=======
+                {/* Таблица */}
+                <table className="table w-full text-base-content">
+                    <thead>
+                    <tr>
+                        <th>Hash</th>
+                        <th>Количество точек</th>
+                        <th>Действия</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {functions.map((func) => (
+                        <tr key={func.hash}>
+                            <td>{func.hash}</td>
+                            <td>{func.points.length}</td>
+                            <td>
+                                <button
+                                    onClick={() => alert(`Просмотр функции с hash: ${func.hash}`)}
+                                    className="btn btn-primary mr-2"
+                                >
+                                    Просмотреть
+                                </button>
+                            </td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
+>>>>>>> Stashed changes
             </div>
     );
 }
