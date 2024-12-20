@@ -1,31 +1,34 @@
 import React, { useState, useEffect } from 'react';
+import axios from "axios";
 
 function Main() {
     const [functions, setFunctions] = useState([]); // Данные функций
     const [loading, setLoading] = useState(false); // Индикатор загрузки
     const [error, setError] = useState(null); // Состояние ошибки
 
-    // Загрузка данных с API
+    // Загрузка данных с API через прокси
     const fetchFunctions = async () => {
         setLoading(true);
         setError(null);
 
         try {
-            const response = await fetch('http://localhost:8080/api/math'); // Ссылка на ваш API
-            if (!response.ok) {
-                throw new Error('Ошибка при загрузке данных');
-            }
+            // Используем axios для выполнения запроса
+            const response = await axios.get('/api/math', {
+                baseURL: process.env.NEXT_PUBLIC_API_BASE_URL, // Базовый URL через прокси
+            });
 
-            const data = await response.json();
+            console.log(response.data);
 
             // Группируем данные по hash
-            setFunctions(groupByHash(data));
+            setFunctions(groupByHash(response.data));
         } catch (err) {
-            setError(err.message); // Ловим и записываем ошибку
+            console.error('Ошибка при загрузке данных:', err);
+            setError(err.response?.data?.message || 'Ошибка при загрузке данных'); // Показываем сообщение об ошибке
         } finally {
             setLoading(false); // Снимаем флаг загрузки
         }
     };
+
 
     // Группировка данных по hash
     const groupByHash = (data) => {
