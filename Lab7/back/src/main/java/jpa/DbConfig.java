@@ -12,7 +12,7 @@ import javax.sql.DataSource;
 @Configuration
 @ComponentScan
 @EnableAutoConfiguration
-@EnableJpaRepositories
+@EnableJpaRepositories(basePackages = {"ui.jpa"})
 public class DbConfig {
     @Bean
     public NamedParameterJdbcTemplate namedParameterJdbcTemplate(DataSource dataSource) {

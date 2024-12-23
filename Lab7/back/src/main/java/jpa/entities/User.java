@@ -30,6 +30,9 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+    @Column
+    private String tabulatedFactory;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of();
