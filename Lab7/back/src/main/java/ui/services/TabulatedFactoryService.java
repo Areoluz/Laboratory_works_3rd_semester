@@ -16,6 +16,7 @@ import ui.exeptions.NoFactoryException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @AllArgsConstructor
@@ -46,7 +47,9 @@ public class TabulatedFactoryService extends AbstractSecurityService{
     }
 
     public TabulatedFunctionFactory getActive(SecurityContext securityContext) throws BasedException {
-        return construct(getUser(securityContext).getTabulatedFactory());
+        String className = getUser(securityContext).getTabulatedFactory();
+        if(Objects.isNull(className)) return new ArrayTabulatedFunctionFactory();
+        return construct(className);
     }
 
     public void setActive(SecurityContext securityContext, TabulatedFunctionFactory factory) throws BasedException {
