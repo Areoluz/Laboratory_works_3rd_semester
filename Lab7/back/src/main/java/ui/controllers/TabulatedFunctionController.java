@@ -6,11 +6,14 @@ import functions.ArrayTabulatedFunction;
 import functions.MathFunction;
 import functions.TabulatedFunction;
 import functions.factory.TabulatedFunctionFactory;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.web.bind.annotation.*;
+import ui.dto.SimpleFuncDTO;
 import ui.dto.TabulatedArrayRequestDTO;
 import ui.dto.TabulatedResponseDTO;
 import ui.dto.TabulatedSimpleRequestDTO;
@@ -20,17 +23,20 @@ import ui.services.SimpleFunctionService;
 import ui.services.TabulatedFactoryService;
 import ui.services.TempStorage;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/functions")
+@Tag(name = "Current function controller", description = "думаю разберешься")
 public class TabulatedFunctionController {
     @Autowired
     TempStorage tempStorage;
     @Autowired
-    SecurityContextHolderStrategy securityContextHolderStrategy;
-    @Autowired
     TabulatedFactoryService tabulatedFactoryService;
     @Autowired
     SimpleFunctionService simpleFunctionService;
+
+    SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
 
     @GetMapping("/tabulated")
     public TabulatedResponseDTO getTabulatedFunction()throws BasedException {
@@ -68,6 +74,11 @@ public class TabulatedFunctionController {
         } catch (IllegalArgumentException | DifferentLengthOfArraysException | ArrayIsNotSortedException e) {
             throw new ArrayExeptions(e.getMessage());
         }
+    }
+
+    @GetMapping("simple/all")
+    List<SimpleFuncDTO> getSimpleFunctions(){
+        return simpleFunctionService.getSimpleFunctions();
     }
 
 

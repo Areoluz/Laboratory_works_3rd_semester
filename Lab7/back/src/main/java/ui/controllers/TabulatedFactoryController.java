@@ -2,22 +2,20 @@ package ui.controllers;
 
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ui.dto.TabulatedFactoryDTO;
 import ui.exeptions.BasedException;
 import ui.services.TabulatedFactoryService;
 
 import java.util.List;
 
-@RestController("/factory")
+@RestController()
+@RequestMapping("/factory")
 public class TabulatedFactoryController {
 
-    @Autowired
-    SecurityContextHolderStrategy securityContextHolderStrategy;
+    SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
     @Autowired
     TabulatedFactoryService tabulatedFactoryService;
 
@@ -31,7 +29,7 @@ public class TabulatedFactoryController {
         tabulatedFactoryService.setActive(securityContextHolderStrategy.getContext(), tabulatedFactoryService.construct(className));
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public List<TabulatedFactoryDTO> getFactories() {
         return tabulatedFactoryService.getAllFactories();
     }

@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"web.service", "jpa.repository", "jpa.entities"})
+@ComponentScan(basePackages = {"web", "jpa", "ui"})
 @EntityScan(basePackages = {"jpa.entities"})
 @EnableJpaRepositories(basePackages = {"jpa.repository"})
 @EnableTransactionManagement
