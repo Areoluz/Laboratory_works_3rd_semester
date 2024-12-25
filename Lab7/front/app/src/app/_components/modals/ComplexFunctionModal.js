@@ -1,8 +1,58 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-function ComplexFunctionModal({ isOpen, onClose, onCreate, availableFunctions }) {
+function ComplexFunctionModal({ isOpen, onClose, onCreate }) {
     const [functionName, setFunctionName] = useState('');
     const [functionTree, setFunctionTree] = useState([]); // Array of nodes representing the tree structure
+    const [availableOperands, setAvailableOperands] = useState([]); // Список доступных операндов
+    const [availableFunctions, setAvailableFunctions] = useState([]); // Список доступных функций
+
+    useEffect(() => {
+        // Загружаем операнды и функции при открытии модального окна
+        if (isOpen) {
+            fetchAvailableOperands();
+            fetchAvailableFunctions();
+        }
+    }, [isOpen]);
+
+    const fetchAvailableOperands = async () => {
+        try {
+            const response = await axios.get('/api/operands/getAll', {
+                headers: { 'Content-Type': 'application/json' },
+            });
+
+            if (response.data && typeof response.data === 'object') {
+                const operandsArray = Object.keys(response.data).map((key) => ({
+                    name: key,
+                    data: response.data[key], // Сохраняем данные для каждого операнда
+                }));
+                setAvailableOperands(operandsArray);
+            } else {
+                console.error('Некорректный ответ от сервера:', response.data);
+            }
+        } catch (error) {
+            console.error('Ошибка при загрузке операндов:', error);
+        }
+    };
+
+    const fetchAvailableFunctions = async () => {
+        try {
+            const response = await axios.get('/api/functions/simple/all', {
+                headers: { 'Content-Type': 'application/json' },
+            });
+
+            if (response.data && Array.isArray(response.data)) {
+                const functionsArray = response.data.map((func) => ({
+                    name: func.name, // Предполагается, что объект функции имеет поле "name"
+                }));
+                setAvailableFunctions(functionsArray);
+            } else {
+                console.error('Некорректный ответ от сервера:', response.data);
+            }
+        } catch (error) {
+            console.error('Ошибка при загрузке функций:', error);
+        }
+    };
 
     const handleAddOperand = () => {
         const newNode = { id: Date.now(), type: 'operand', name: '', children: [] };
@@ -38,11 +88,18 @@ function ComplexFunctionModal({ isOpen, onClose, onCreate, availableFunctions })
                         <select
                             value={node.name}
                             onChange={(e) => handleUpdateNode(node.id, { name: e.target.value })}
-                            className="select select-bordered w-full max-w-xs"
+                            className="select select-bordered w-full max-w-xs text-base-content"
                         >
-                            <option value="" disabled>Выберите функцию</option>
+                            <option value="" disabled>Выберите операнд или функцию</option>
+                            {availableOperands.map((operand) => (
+                                <option key={`operand-${operand.name}`} value={operand.name}>
+                                    Операнд: {operand.name}
+                                </option>
+                            ))}
                             {availableFunctions.map((func) => (
-                                <option key={func} value={func}>{func}</option>
+                                <option key={`function-${func.name}`} value={func.name}>
+                                    Функция: {func.name}
+                                </option>
                             ))}
                         </select>
                         <button
@@ -58,15 +115,57 @@ function ComplexFunctionModal({ isOpen, onClose, onCreate, availableFunctions })
         </ul>
     );
 
-    const handleCreateComplexFunction = () => {
-        if (!functionName.trim() || functionTree.length === 0) {
-            alert('Введите название функции и добавьте операнды.');
+    const handleCreateComplexFunction = async () => {
+        if (!functionName.trim() || functionTree.length < 2) {
+            alert('Введите название функции и добавьте хотя бы две функции.');
             return;
         }
 
-        onCreate({ name: functionName, tree: functionTree });
-        onClose();
+        // Получаем названия первой и второй функции из дерева
+        const [firstFunction, secondFunction] = functionTree;
+
+        if (!firstFunction.name || !secondFunction.name) {
+            alert('Выберите названия для всех функций.');
+            return;
+        }
+
+        // Проверяем, является ли функция простой или операндом
+        const innerKey = availableFunctions.some((func) => func.name === firstFunction.name)
+            ? 'className'
+            : 'name';
+
+        const outerKey = availableFunctions.some((func) => func.name === secondFunction.name)
+            ? 'className'
+            : 'name';
+
+        // Формируем тело запроса с учетом className для простых функций
+        const requestBody = {
+            name: functionName,
+            inner: innerKey === 'className' ? firstFunction.className : firstFunction.name,
+            outer: outerKey === 'className' ? secondFunction.className : secondFunction.name,
+        };
+        console.log(requestBody);
+
+        try {
+            // Отправляем POST-запрос на API
+            const response = await axios.post('/api/composite', requestBody, {
+                headers: { 'Content-Type': 'application/json' },
+            });
+
+            if (response.status === 200) {
+                alert('Функция успешно создана!');
+                onCreate(requestBody); // Вызываем onCreate для обновления внешнего состояния
+                onClose();
+            } else {
+                console.error('Ошибка при создании функции:', response);
+                alert('Не удалось создать функцию. Проверьте данные.');
+            }
+        } catch (error) {
+            console.error('Ошибка при отправке запроса на создание функции:', error);
+            alert('Произошла ошибка при создании функции. Попробуйте снова.');
+        }
     };
+
 
     if (!isOpen) return null;
 

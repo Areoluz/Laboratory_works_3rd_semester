@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 function DeriveModal({ isOpen, onClose }) {
     const [result, setResult] = useState(null); // Результат вычисления
     const [executionTime, setExecutionTime] = useState(null); // Время выполнения
+    const [operands, setOperands] = useState([]); // Список операндов
+    const [selectedOperand, setSelectedOperand] = useState(''); // Выбранный операнд
 
     if (!isOpen) return null;
 
@@ -15,12 +17,51 @@ function DeriveModal({ isOpen, onClose }) {
         }
     };
 
+    // Загрузка всех операндов при открытии модального окна
+    useEffect(() => {
+        const fetchOperands = async () => {
+            try {
+                const token = localStorage.getItem('authToken');
+
+                const response = await axios.get('/api/operands/getAll', {
+                    headers: {
+                        'Authorization': token ? `Bearer ${token}` : '', // Добавляем токен в заголовок
+                    },
+                });
+
+                // Преобразуем объект в массив операндов
+                const transformedOperands = Object.entries(response.data).map(([key, value]) => ({
+                    id: key,
+                    x: value.x,
+                    y: value.y,
+                }));
+
+                setOperands(transformedOperands);
+            } catch (error) {
+                console.error('Ошибка при загрузке операндов:', error);
+                alert('Не удалось загрузить список операндов. Попробуйте позже.');
+            }
+        };
+
+        if (isOpen) {
+            fetchOperands();
+        }
+    }, [isOpen]);
+
     const calculateDerive = async () => {
+        if (!selectedOperand) {
+            alert('Выберите операнд для вычисления!');
+            return;
+        }
+
         try {
             const startTime = performance.now();
 
             const response = await axios.post('/api/operands/derive', null, {
-
+                params: {
+                    op: selectedOperand,
+                    result: 'op3',
+                },
             });
 
             const endTime = performance.now();
@@ -54,9 +95,7 @@ function DeriveModal({ isOpen, onClose }) {
 
     const loadResult = async () => {
         try {
-            const response = await axios.get('/api/operands/binary', {
-            });
-
+            const response = await axios.get('/api/operands/binary');
             setResult(response.data); // Загружаем результат в состояние
             alert('Результат успешно загружен.');
         } catch (error) {
@@ -76,6 +115,24 @@ function DeriveModal({ isOpen, onClose }) {
                 onClick={(e) => e.stopPropagation()} // Останавливаем всплытие клика внутри модального окна
             >
                 <h2 className="text-xl font-bold mb-4 text-primary-content">Вычисление дифференциала</h2>
+
+                {/* Селектор для выбора операнда */}
+                <div className="mb-4">
+                    <label className="block text-sm font-medium text-base-content mb-2">Выберите операнд:</label>
+                    <select
+                        className="select select-bordered w-full text-base-content"
+                        value={selectedOperand}
+                        onChange={(e) => setSelectedOperand(e.target.value)}
+                    >
+                        <option value="">Выберите операнд </option>
+                        {operands.map((operand) => (
+                            <option key={operand.id} value={operand.id}>
+                                {operand.id}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
                 <div className="flex justify-between items-center mb-4">
                     <button
                         onClick={calculateDerive}
@@ -84,6 +141,7 @@ function DeriveModal({ isOpen, onClose }) {
                         Вычислить
                     </button>
                 </div>
+
                 {result !== null && (
                     <div className="mt-4 text-base-content">
                         <h3 className="text-lg font-bold mb-2">Результат</h3>
@@ -91,6 +149,7 @@ function DeriveModal({ isOpen, onClose }) {
                         <p>Время выполнения: <span className="font-mono">{executionTime} мс</span></p>
                     </div>
                 )}
+
                 <div className="flex-col gap-4 mt-6">
                     <button onClick={saveResult} className="btn btn-secondary mb-2 w-full">
                         Сохранить

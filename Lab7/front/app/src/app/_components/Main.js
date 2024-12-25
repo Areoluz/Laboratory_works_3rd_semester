@@ -88,7 +88,7 @@ function Main() {
             <div className="flex-1 overflow-hidden flex flex-col">
                 <div className="flex flex-col gap-6">
                     <div className="bg-base-100 dark:bg-base-700 p-6 rounded-lg shadow-md">
-                        <h1 className="text-md mb-4 text-base-content">
+                        <h1 className="text-md font-bold mb-4 text-base-content">
                             Приложение предназначено для работы с табулированными функциями. Оно предоставляет возможность выполнять следующие операции:</h1>
 
                         <h1 className="text-md text-base-content">• Выполнение арифметических операций между функциями.</h1>
@@ -100,10 +100,10 @@ function Main() {
                         <h1 className="text-md text-base-content">• Управление значениями точек
                             функции. </h1>
 
-                        <h1 className="text-md text-base-content">• Экспорт и импорт функций
+                        <h1 className="text-md mb-4 text-base-content">• Экспорт и импорт функций
                             (сериализация/десериализация). </h1>
 
-                        <h1 className="text-md mb-10 text-base-content">Для взаимодействия с
+                        <h1 className="text-md mb-10 font-bold text-base-content">Для взаимодействия с
                             приложением, рекмоендуется использовать всплывающие над иконками подсказки. </h1>
 
                         {/* Таблица операндов */}
@@ -120,7 +120,7 @@ function Main() {
                                     <div className="w-1/4">
                                         {operand.id}
                                         {operand.id === 'op1' && (
-                                            <button className="ml-2 btn btn-primary btn-sm">Текущий</button>
+                                            <button className="ml-2 btn btn-primary btn-sm">главный</button>
                                         )}
                                     </div>
                                     <div className="w-1/4">{operand.x.length}</div>

@@ -132,10 +132,11 @@ function GraphModal({ isOpen, onClose }) {
                                 <td className="border px-4 py-2">
                                     <input
                                         type="number"
-                                        value={yValues[index]}
+                                        value={isNaN(yValues[index]) ? '' : yValues[index]} // Если значение NaN, показываем пустую строку
                                         onChange={(e) => {
                                             const newYValues = [...yValues];
-                                            newYValues[index] = parseFloat(e.target.value);
+                                            const value = parseFloat(e.target.value);
+                                            newYValues[index] = isNaN(value) ? '' : value; // Если значение некорректное, заменяем на пустую строку
                                             setYValues(newYValues);
                                         }}
                                         className="w-full"

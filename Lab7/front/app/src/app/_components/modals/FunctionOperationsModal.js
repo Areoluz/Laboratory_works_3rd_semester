@@ -59,7 +59,10 @@ function FunctionOperationsModal({ isOpen, onClose }) {
 
         try {
             const response = await axios.post('/api/operands/calculate', null, {
-                params: { operation: operation }
+                params: { operation: operation,
+                op1: 'op1',
+                op2: 'op2',
+                result:'result'}
             });
 
             const resultResponse = await axios.get(`/api/operands/get`, {
