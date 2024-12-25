@@ -1,8 +1,7 @@
 'use client';
 
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useFunctions } from '../FunctionsContext'; // Импорт контекста
 
 function CreateFunctionModal({ isOpen, onClose, onCreate }) {
     const [scenario, setScenario] = useState(null); // null, 'array', or 'mathFunction'
@@ -21,7 +20,6 @@ function CreateFunctionModal({ isOpen, onClose, onCreate }) {
         const fetchFunctions = async () => {
             try {
                 const token = localStorage.getItem('authToken');
-
                 const response = await axios.get('/api/functions/simple/all', {
                     headers: {
                         'Authorization': token ? `Bearer ${token}` : '', // Add token to the request header
@@ -59,42 +57,35 @@ function CreateFunctionModal({ isOpen, onClose, onCreate }) {
             return;
         }
 
-        // Генерация данных в нужном формате с массивами x и y
         const xArray = tableData.map(row => Number(row.x)); // Массив X
         const yArray = tableData.map(row => Number(row.y)); // Массив Y
 
         const data = { x: xArray, y: yArray };
 
-        console.log(data);
-
         try {
-            // Используем axios для выполнения запроса с новым форматом данных
+            // Отправка данных на сервер
             const response = await axios.post('/api/functions/array', data, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
             });
 
-            console.log(response.data);
-
-            // Устанавливаем функцию как op1
+            // Устанавливаем функцию как op1 или другой операнд
             await axios.post('/api/operands/set', null, {
                 params: {
-                    'id':selectedOperand,
+                    id: selectedOperand,
                 },
                 headers: {
                     'Content-Type': 'application/json',
                 },
             });
+            console.log(response.data);
 
-            //addFunction({ data: response.data });
-            onCreate({ type: 'array', data });
+            // Передаем funcId вместе с данными
+            onCreate({ type: 'array', data}); // добавлен funcId
             onClose();
         } catch (error) {
             console.error('Ошибка при добавлении функции:', error);
-            if (error.response) {
-                console.error('Ответ от сервера:', error.response.data);
-            }
             alert('Ошибка при добавлении функции. Попробуйте снова.');
         }
     };
@@ -114,32 +105,27 @@ function CreateFunctionModal({ isOpen, onClose, onCreate }) {
 
         try {
             const response = await axios.post('/api/functions/simple', payload, {
-                //baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
                 headers: {
                     'Content-Type': 'application/json',
-                    //'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
                 },
             });
 
-            // Устанавливаем функцию как op1
+            // Устанавливаем функцию как op1 или другой операнд
             await axios.post('/api/operands/set', null, {
                 params: {
-                    'id': selectedOperand,
+                    id: selectedOperand,
                 },
                 headers: {
                     'Content-Type': 'application/json',
                 },
             });
-
             console.log(response.data);
-            //addFunction({ data: response.data });
-            onCreate({ type: 'mathFunction', payload });
+
+            // Передаем funcId вместе с данными
+            onCreate({ type: 'mathFunction', payload }); // добавлен funcId
             onClose();
         } catch (error) {
             console.error('Ошибка при добавлении функции:', error);
-            if (error.response) {
-                console.error('Ответ от сервера:', error.response.data);
-            }
             alert('Ошибка при добавлении функции. Попробуйте снова.');
         }
     };

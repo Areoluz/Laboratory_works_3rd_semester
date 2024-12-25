@@ -1,27 +1,25 @@
 import React, { useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
-import "../styleScroll.css"
+import axios from 'axios'; // Для отправки запросов на сервер
+import "../styleScroll.css";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 function GraphModal({ isOpen, onClose }) {
-    const [functionData, setFunctionData] = useState([]);
     const [xValues, setXValues] = useState([]);
     const [yValues, setYValues] = useState([]);
     const [selectedX, setSelectedX] = useState(null);
-    const [calculatedY, setCalculatedY] = useState(null); // Добавлено для хранения вычисленного y
+    const [calculatedY, setCalculatedY] = useState(null); // Для хранения вычисленного y
+    const [selectedOperand, setSelectedOperand] = useState('op1'); // Состояние для выбранного операнда
 
-    const generateFunction = (xStart = -3, xEnd = 3, step = 1) => {
-        let newXValues = [];
-        let newYValues = [];
-        for (let x = xStart; x <= xEnd; x += step) {
-            newXValues.push(x);
-            newYValues.push(Math.sin(x)); // Пример функции: y = sin(x)
-        }
-        setXValues(newXValues);
-        setYValues(newYValues);
-        setFunctionData(newYValues.map((y, index) => ({ x: newXValues[index], y })));
+    // Список доступных операндов
+    const operands = ['op1', 'op2', 'op3', 'result'];
+
+    const generateFunction = (xData, yData) => {
+        // Получаем массивы x и y от сервера и строим график
+        setXValues(xData);
+        setYValues(yData);
     };
 
     const handleSave = () => {
@@ -31,18 +29,43 @@ function GraphModal({ isOpen, onClose }) {
     };
 
     const handleCalculateAtX = () => {
-        if (selectedX !== null) {
-            const yAtX = Math.sin(selectedX); // Пример вычисления
+        if (selectedX !== null && xValues.includes(selectedX)) {
+            const index = xValues.indexOf(selectedX);
+            const yAtX = yValues[index]; // Получаем значение y для выбранного x
             setCalculatedY(yAtX); // Обновляем состояние с вычисленным y
         }
     };
 
-    const handleChangeY = (index, value) => {
-        const newYValues = [...yValues];
-        newYValues[index] = value;
-        setYValues(newYValues);
-        const newFunctionData = newYValues.map((y, idx) => ({ x: xValues[idx], y }));
-        setFunctionData(newFunctionData);
+    const handleOutsideClick = (e) => {
+        if (e.target.id === 'modal-overlay') {
+            onClose();
+        }
+    };
+
+    // Функция для отправки запроса на сервер и получения данных по выбранному операнду
+    const fetchOperandData = async () => {
+        try {
+            // Используем axios для выполнения запроса с новым форматом данных
+            const response = await axios.get('/api/operands/get', {
+                params: {
+                    id: selectedOperand,
+                },
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            console.log(response.data);
+
+            // Проверка на корректность данных
+            if (response.data && response.data.x && response.data.y) {
+                generateFunction(response.data.x, response.data.y); // Строим график по данным
+            } else {
+                console.error('Данные от сервера не содержат массивов x и y');
+            }
+        } catch (error) {
+            console.error('Ошибка при получении данных от сервера:', error);
+        }
     };
 
     const data = {
@@ -58,12 +81,6 @@ function GraphModal({ isOpen, onClose }) {
         ],
     };
 
-    const handleOutsideClick = (e) => {
-        if (e.target.id === 'modal-overlay') {
-            onClose();
-        }
-    };
-
     if (!isOpen) return null;
 
     return (
@@ -77,6 +94,24 @@ function GraphModal({ isOpen, onClose }) {
                 onClick={(e) => e.stopPropagation()}
             >
                 <h2 className="text-xl font-bold text-base-content mb-4">График функции</h2>
+
+                <div className="flex gap-4 mb-4">
+                    <select
+                        className="select select-bordered w-full text-base-content"
+                        value={selectedOperand}
+                        onChange={(e) => setSelectedOperand(e.target.value)}
+                    >
+                        {operands.map((operand) => (
+                            <option key={operand} value={operand}>
+                                {operand}
+                            </option>
+                        ))}
+                    </select>
+
+                    <button className="btn btn-info" onClick={fetchOperandData}>
+                        Получить данные для операнда
+                    </button>
+                </div>
 
                 <div className="mb-4">
                     <Line data={data} />
@@ -98,7 +133,11 @@ function GraphModal({ isOpen, onClose }) {
                                     <input
                                         type="number"
                                         value={yValues[index]}
-                                        onChange={(e) => handleChangeY(index, parseFloat(e.target.value))}
+                                        onChange={(e) => {
+                                            const newYValues = [...yValues];
+                                            newYValues[index] = parseFloat(e.target.value);
+                                            setYValues(newYValues);
+                                        }}
                                         className="w-full"
                                     />
                                 </td>
@@ -109,7 +148,7 @@ function GraphModal({ isOpen, onClose }) {
                 </div>
 
                 <div className="flex gap-4 mb-4">
-                    <button className="btn btn-primary" onClick={() => generateFunction()}>
+                    <button className="btn btn-primary" onClick={() => generateFunction([], [])}>
                         Создать функцию
                     </button>
                     <button className="btn btn-success" onClick={handleSave}>

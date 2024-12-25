@@ -7,13 +7,50 @@ function Main() {
     const [operands, setOperands] = useState([]); // Список операндов
 
     // Открытие модального окна
-    const openModal = (operand) => {
-        setModalData(operand);
-        setIsModalOpen(true);
+    const openModal = async (operandId) => {
+        try {
+            // Отправляем запрос для получения всех операндов
+            const token = localStorage.getItem('authToken');
+            const response = await axios.get('/api/operands/getAll', {
+                headers: {
+                    'Authorization': token ? `Bearer ${token}` : '', // Добавляем токен в заголовок
+                },
+            });
+
+            // Преобразуем объект в массив
+            const transformedOperands = Object.entries(response.data).map(([key, value]) => ({
+                id: key,
+                x: value.x,
+                y: value.y,
+            }));
+
+            setOperands(transformedOperands);
+
+            // Находим операнд по id и открываем модальное окно с его данными
+            const operand = transformedOperands.find((op) => op.id === operandId);
+            setModalData(operand);
+            setIsModalOpen(true);
+
+        } catch (error) {
+            console.error('Ошибка при загрузке операндов:', error);
+            alert('Не удалось загрузить список операндов. Попробуйте позже.');
+        }
     };
 
-    // Загрузка списка операндов с API
+    // Закрытие модального окна
+    const closeModal = () => {
+        setIsModalOpen(false);
+        setModalData(null);
+    };
+
+    const handleOutsideClick = (e) => {
+        if (e.target.id === 'modal-overlay') {
+            closeModal();
+        }
+    };
+
     useEffect(() => {
+        // Initial loading of operands on component mount
         const fetchOperands = async () => {
             try {
                 const token = localStorage.getItem('authToken');
@@ -43,18 +80,6 @@ function Main() {
         fetchOperands();
     }, []);
 
-    // Закрытие модального окна
-    const closeModal = () => {
-        setIsModalOpen(false);
-        setModalData(null);
-    };
-
-    const handleOutsideClick = (e) => {
-        if (e.target.id === 'modal-overlay') {
-            closeModal();
-        }
-    };
-
     return (
         <div>
             <h1 className="text-xl md:text-2xl font-bold mb-4 text-base-content">
@@ -73,15 +98,13 @@ function Main() {
                         <h1 className="text-md text-base-content">• Дифференцирование функции. </h1>
 
                         <h1 className="text-md text-base-content">• Управление значениями точек
-                                        функции. </h1>
+                            функции. </h1>
 
                         <h1 className="text-md text-base-content">• Экспорт и импорт функций
-                                            (сериализация/десериализация). </h1>
+                            (сериализация/десериализация). </h1>
 
                         <h1 className="text-md mb-10 text-base-content">Для взаимодействия с
-                                                приложением, рекмоендуется использовать всплывающие над иконками подсказки. </h1>
-
-
+                            приложением, рекмоендуется использовать всплывающие над иконками подсказки. </h1>
 
                         {/* Таблица операндов */}
                         <div className="overflow-x-auto">
@@ -103,7 +126,7 @@ function Main() {
                                     <div className="w-1/4">{operand.x.length}</div>
                                     <div className="w-1/2">
                                         <button
-                                            onClick={() => openModal(operand)}
+                                            onClick={() => openModal(operand.id)} // Обновлено: передаем id операнда
                                             className="btn btn-primary btn-sm"
                                         >
                                             Просмотреть точки

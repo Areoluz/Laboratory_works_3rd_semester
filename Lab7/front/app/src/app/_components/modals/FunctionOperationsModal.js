@@ -1,79 +1,115 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import CreateFunctionModal from './CreateFunctionModal'; // Импортируем компонент для создания функции
 
 function FunctionOperationsModal({ isOpen, onClose }) {
     const [function1, setFunction1] = useState([]);
     const [function2, setFunction2] = useState([]);
     const [resultFunction, setResultFunction] = useState([]);
     const [error, setError] = useState('');
+    const [isCreateFunctionModalOpen, setIsCreateFunctionModalOpen] = useState(false);
 
-    const handleCreateFunction = (setFunction) => {
-        const newFunction = Array.from({ length: 5 }, (_, i) => ({ x: i, y: 0 }));
-        setFunction(newFunction);
+    // Функция для загрузки данных с сервера
+    const fetchFunctionData = async (id, setFunction) => {
+        try {
+            const response = await axios.get(`/api/operands/get`, {
+                params: { id }
+            });
+            const { x, y } = response.data;
+            const newFunction = x.map((xValue, index) => ({
+                x: xValue,
+                y: y[index]
+            }));
+            setFunction(newFunction);
+        } catch (error) {
+            console.error('Ошибка при загрузке данных функции:', error);
+            setError('Не удалось загрузить данные для функции.');
+        }
     };
 
-    const handleLoadFromFile = (setFunction) => {
-        alert('Функция загрузки из файла еще не реализована.');
+    // Функция для обновления значения y
+    const handleYChange = async (id, index, value, setFunction, func) => {
+        try {
+            await axios.post('/api/operands/setY', null, {
+                params: {
+                    id: id,
+                    index: index,
+                    value: value
+                }
+            });
+
+            const newData = [...func];
+            newData[index].y = value;
+            setFunction(newData);
+        } catch (error) {
+            console.error('Ошибка при обновлении значения y:', error);
+            setError('Не удалось обновить значение Y.');
+        }
     };
 
-    const handleSaveToFile = (data) => {
-        alert('Функция сохранения в файл еще не реализована.');
-    };
-
-    const handleOperation = (operation) => {
+    // Функция для выполнения операции
+    const handleOperation = async (operation) => {
         setError('');
         if (function1.length !== function2.length) {
             setError('Размеры функций не совпадают.');
             return;
         }
 
-        const result = function1.map((row, index) => {
-            const x1 = row.x;
-            const y1 = row.y;
-            const x2 = function2[index].x;
-            const y2 = function2[index].y;
+        try {
+            const response = await axios.post('/api/operands/calculate', null, {
+                params: { operation: operation }
+            });
 
-            if (x1 !== x2) {
-                setError('X-координаты не совпадают.');
-                return null;
-            }
+            const resultResponse = await axios.get(`/api/operands/get`, {
+                params: { id: 'result' }
+            });
 
-            let yResult;
-            switch (operation) {
-                case 'add':
-                    yResult = y1 + y2;
-                    break;
-                case 'subtract':
-                    yResult = y1 - y2;
-                    break;
-                case 'multiply':
-                    yResult = y1 * y2;
-                    break;
-                case 'divide':
-                    if (y2 === 0) {
-                        setError('Деление на ноль.');
-                        return null;
-                    }
-                    yResult = y1 / y2;
-                    break;
-                default:
-                    yResult = 0;
-            }
-            return { x: x1, y: yResult };
-        });
-
-        if (result.includes(null)) return;
-        setResultFunction(result);
+            const { x, y } = resultResponse.data;
+            const result = x.map((xValue, index) => ({
+                x: xValue,
+                y: y[index]
+            }));
+            setResultFunction(result);
+        } catch (error) {
+            console.error('Ошибка при выполнении операции:', error);
+            setError('Не удалось выполнить операцию.');
+        }
     };
 
-    if (!isOpen) return null;
+    // Загрузка данных для функций 1 и 2 при открытии модального окна
+    useEffect(() => {
+        if (isOpen) {
+            fetchFunctionData('op1', setFunction1);
+            fetchFunctionData('op2', setFunction2);
+        }
+    }, [isOpen]);
 
     const handleOutsideClick = (e) => {
         if (e.target.id === 'modal-overlay') {
             onClose();
         }
     };
+
+    const handleCreateFunction = () => {
+        setIsCreateFunctionModalOpen(true);
+    };
+
+    const handleSaveFunction = async (func, name) => {
+        try {
+            const serializedFunction = JSON.stringify(func);
+            const functionsIO = new FunctionsIO();
+            await functionsIO.saveToFile(name, serializedFunction);
+            alert('Функция сохранена успешно!');
+        } catch (error) {
+            console.error('Ошибка при сохранении функции:', error);
+            setError('Не удалось сохранить функцию.');
+        }
+    };
+
+
+    if (!isOpen) return null;
 
     return (
         <div
@@ -83,7 +119,7 @@ function FunctionOperationsModal({ isOpen, onClose }) {
         >
             <div
                 className="bg-white p-6 rounded-lg shadow-md w-full max-w-4xl max-h-[700px] scroll-container"
-                onClick={(e) => e.stopPropagation()} // Останавливаем всплытие клика внутри модального окна
+                onClick={(e) => e.stopPropagation()}
             >
                 <h2 className="text-xl font-bold mb-4 text-primary-content">Операции над функциями</h2>
                 {error && <p className="text-red-500 mb-4">{error}</p>}
@@ -111,24 +147,21 @@ function FunctionOperationsModal({ isOpen, onClose }) {
                                         <td>
                                             <input
                                                 value={row.x}
-                                                onChange={(e) => {
-                                                    if (idx === 2) return; // Результат недоступен для редактирования
-                                                    const newData = [...tableData];
-                                                    newData[i].x = Number(e.target.value);
-                                                    idx === 0 ? setFunction1(newData) : setFunction2(newData);
-                                                }}
                                                 className="input input-bordered text-base-content w-full"
-                                                disabled={idx === 2}
+                                                disabled
                                             />
                                         </td>
                                         <td>
                                             <input
                                                 value={row.y}
                                                 onChange={(e) => {
-                                                    if (idx === 2) return; // Результат недоступен для редактирования
-                                                    const newData = [...tableData];
-                                                    newData[i].y = Number(e.target.value);
-                                                    idx === 0 ? setFunction1(newData) : setFunction2(newData);
+                                                    if (idx === 0) {
+                                                        const newValue = Number(e.target.value);
+                                                        handleYChange('op1', i, newValue, setFunction1, function1);
+                                                    } else if (idx === 1) {
+                                                        const newValue = Number(e.target.value);
+                                                        handleYChange('op2', i, newValue, setFunction2, function2);
+                                                    }
                                                 }}
                                                 className="input input-bordered text-base-content w-full"
                                                 disabled={idx === 2}
@@ -142,20 +175,20 @@ function FunctionOperationsModal({ isOpen, onClose }) {
                             {idx !== 2 && (
                                 <div className="flex-col gap-2 p-2">
                                     <button
-                                        onClick={() => handleCreateFunction(idx === 0 ? setFunction1 : setFunction2)}
+                                        onClick={() => fetchFunctionData(idx === 0 ? 'op1' : 'op2', idx === 0 ? setFunction1 : setFunction2)}
                                         className="btn btn-primary m-2"
-                                    >
-                                        Создать
-                                    </button>
-                                    <button
-                                        onClick={() => handleLoadFromFile(idx === 0 ? setFunction1 : setFunction2)}
-                                        className="btn btn-secondary m-2"
                                     >
                                         Загрузить
                                     </button>
                                     <button
-                                        onClick={() => handleSaveToFile(idx === 0 ? function1 : function2)}
-                                        className="btn btn-accent m-2"
+                                        onClick={() => handleCreateFunction()}
+                                        className="btn btn-success m-2"
+                                    >
+                                        Создать
+                                    </button>
+                                    <button
+                                        onClick={() => handleSaveFunction(idx === 0 ? function1 : function2, `Функция_${idx + 1}`)}
+                                        className="btn btn-secondary m-2"
                                     >
                                         Сохранить
                                     </button>
@@ -169,13 +202,13 @@ function FunctionOperationsModal({ isOpen, onClose }) {
                     <button onClick={() => handleOperation('add')} className="btn btn-primary">
                         Сложение
                     </button>
-                    <button onClick={() => handleOperation('subtract')} className="btn btn-warning">
+                    <button onClick={() => handleOperation('sub')} className="btn btn-warning">
                         Вычитание
                     </button>
-                    <button onClick={() => handleOperation('multiply')} className="btn btn-secondary">
+                    <button onClick={() => handleOperation('mul')} className="btn btn-secondary">
                         Умножение
                     </button>
-                    <button onClick={() => handleOperation('divide')} className="btn btn-accent">
+                    <button onClick={() => handleOperation('div')} className="btn btn-accent">
                         Деление
                     </button>
                 </div>
@@ -186,6 +219,23 @@ function FunctionOperationsModal({ isOpen, onClose }) {
                     </button>
                 </div>
             </div>
+
+            {/* Модальное окно для создания функции */}
+            <CreateFunctionModal
+                isOpen={isCreateFunctionModalOpen}
+                onClose={() => setIsCreateFunctionModalOpen(false)}
+                onCreate={(data) => {
+                    console.log('Созданная функция:', data);
+                    // Закрытие модального окна
+                    setIsCreateFunctionModalOpen(false);
+
+                    // Обновление данных для op1 и op2
+                    // Запрашиваем данные для обеих функций после создания
+                    fetchFunctionData('op1', setFunction1);
+                    fetchFunctionData('op2', setFunction2);
+                }}
+            />
+
         </div>
     );
 }
