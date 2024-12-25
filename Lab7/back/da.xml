@@ -1,0 +1,16 @@
+<functions.ArrayTabulatedFunction>
+<xValues>
+    <double>-3.0</double>
+    <double>0.0</double>
+    <double>3.0</double>
+    <double>9.0</double>
+    <double>15.0</double>
+</xValues>
+<yValues>
+<double>9.0</double>
+<double>0.0</double>
+<double>9.0</double>
+<double>81.0</double>
+<double>225.0</double>
+</yValues>
+        </functions.ArrayTabulatedFunction>

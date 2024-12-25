@@ -1,6 +1,9 @@
 package io;
 
-import functions.TabulatedFunction;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.thoughtworks.xstream.XStream;
 import functions.TabulatedFunction;
 import functions.factory.TabulatedFunctionFactory;
 
@@ -76,5 +79,28 @@ public final class FunctionsIO {
         return factory.create(xValues, yValues);
     }
 
+    public static void serializeJson(BufferedWriter writer, TabulatedFunction function) throws IOException, JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        writer.write(mapper.writeValueAsString(function));
+    }
+
+    public static TabulatedFunction deserializeJson(BufferedReader reader) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectReader arrayTablulatedReader = mapper.readerFor(TabulatedFunction.class);
+        return arrayTablulatedReader.readValue(reader);
+    }
+
+    public static void serializeXml(BufferedWriter writer, TabulatedFunction  function) {
+        XStream xs = new XStream();
+        PrintWriter pw = new PrintWriter(writer);
+        pw.println(xs.toXML(function));
+        pw.flush();
+    }
+
+    public static TabulatedFunction deserializeXml(BufferedReader reader) {
+        XStream xs = new XStream();
+        xs.allowTypeHierarchy(TabulatedFunction.class);
+        return (TabulatedFunction) xs.fromXML(reader);
+    }
 }
 

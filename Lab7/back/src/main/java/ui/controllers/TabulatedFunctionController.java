@@ -2,7 +2,6 @@ package ui.controllers;
 
 import exceptions.ArrayIsNotSortedException;
 import exceptions.DifferentLengthOfArraysException;
-import functions.ArrayTabulatedFunction;
 import functions.MathFunction;
 import functions.TabulatedFunction;
 import functions.factory.TabulatedFunctionFactory;
@@ -18,7 +17,7 @@ import ui.dto.SimpleFuncDTO;
 import ui.dto.TabulatedArrayRequestDTO;
 import ui.dto.TabulatedResponseDTO;
 import ui.dto.TabulatedSimpleRequestDTO;
-import ui.exeptions.ArrayExeptions;
+import ui.exeptions.ArrayExceptions;
 import ui.exeptions.BasedException;
 import ui.services.CompositeFunctionService;
 import ui.services.SimpleFunctionService;
@@ -60,7 +59,7 @@ public class TabulatedFunctionController {
 
             return TabulatedResponseDTO.from(tabulatedFunction);
         } catch (IllegalArgumentException | DifferentLengthOfArraysException | ArrayIsNotSortedException e) {
-            throw new ArrayExeptions(e.getMessage());
+            throw new ArrayExceptions(e.getMessage());
         }
     }
 
@@ -77,7 +76,7 @@ public class TabulatedFunctionController {
 
             return TabulatedResponseDTO.from(tabulatedFunction);
         } catch (IllegalArgumentException | DifferentLengthOfArraysException | ArrayIsNotSortedException e) {
-            throw new ArrayExeptions(e.getMessage());
+            throw new ArrayExceptions(e.getMessage());
         }
     }
 
