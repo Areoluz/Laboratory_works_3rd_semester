@@ -9,9 +9,7 @@ import operations.TabulatedFunctionOperationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -31,12 +29,7 @@ import java.util.stream.Collectors;
 
 @RestController()
 @RequestMapping("/operands")
-@Tag(name = "Operand controller", description =
-        "op1 - 1ый операнд | " +
-        "op2 - 2ой операнд  | " +
-        "result - результат | " +
-        "op3 - операнд дифференциирования | " +
-        "result2 - результат дифференциирования")
+@Tag(name = "Operand controller")
 public class TabulatedOperandsController {
 
     @Autowired
@@ -47,13 +40,6 @@ public class TabulatedOperandsController {
     TabulatedFactoryService tabulatedFactoryService;
 
     SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
-
-    // Айдишники операндов
-    // op1 - 1ый операнд
-    // op2 - 2ой операнд
-    // result - результат
-    // op3 - операнд дифференциирования
-    // result2 - результат дифференциирования
 
     @Operation(summary = "Set operand from current")
     @PostMapping("/set")
@@ -109,7 +95,7 @@ public class TabulatedOperandsController {
     }
 
     @PostMapping("/setY")
-    public TabulatedResponseDTO setY(@RequestParam("id") String id, @RequestParam("index") @Min(0) Integer index, @RequestParam("value") Double y) throws BasedException {
+    public TabulatedResponseDTO setY(@RequestParam("id") String id, @RequestParam("index") Integer index, @RequestParam("value") Double y) throws BasedException {
         SecurityContext context = securityContextHolderStrategy.getContext();
         TabulatedFunction function = tempStorage.getOperand(context, id);
         if(Objects.isNull(function)) throw new NoOperandException("Такого операнда не существует.");
@@ -121,7 +107,10 @@ public class TabulatedOperandsController {
         return TabulatedResponseDTO.from(function);
     }
 
-
+    @DeleteMapping("delete")
+    public void delete(@RequestParam("id") String id) throws BasedException {
+        tempStorage.removeOperand(securityContextHolderStrategy.getContext(), id);
+    }
 
     @PostMapping("calculate")
     @Operation(summary = "Calculate result using op1 and op2", description =
@@ -130,11 +119,11 @@ public class TabulatedOperandsController {
             "sub = -\n" +
             "mul = *\n" +
             "div = /\n")
-    public TabulatedResponseDTO calculate(@RequestParam("operation") String operation) throws BasedException {
+    public TabulatedResponseDTO calculate(@RequestParam("operation") String operation, @RequestParam("op1") String op1, @RequestParam("op2") String op2, @RequestParam("result") String result_op) throws BasedException {
         SecurityContext context = securityContextHolderStrategy.getContext();
-        TabulatedFunction operand1 = tempStorage.getOperand(context, "op1");
+        TabulatedFunction operand1 = tempStorage.getOperand(context, op1);
         if(Objects.isNull(operand1)) throw new NoOperandException("Нету первого операнда.");
-        TabulatedFunction operand2 = tempStorage.getOperand(context, "op2");
+        TabulatedFunction operand2 = tempStorage.getOperand(context, op2);
         if(Objects.isNull(operand2)) throw new NoOperandException("Нету второго операнда.");
 
         TabulatedFunctionOperationService operationService = new TabulatedFunctionOperationService();
@@ -147,16 +136,16 @@ public class TabulatedOperandsController {
             default -> throw new NoOperationException("Такой операции не существует.");
         };
 
-        tempStorage.setOperand(context, "result",result);
+        tempStorage.setOperand(context, result_op, result);
         return TabulatedResponseDTO.from(result);
     }
 
     // Используется только op3 и result2
 
     @PostMapping("derive")
-    public TabulatedResponseDTO fuck() throws BasedException {
+    public TabulatedResponseDTO fuck(@RequestParam("op") String op, @RequestParam("result") String result_op) throws BasedException {
         SecurityContext context = securityContextHolderStrategy.getContext();
-        TabulatedFunction operand1 = tempStorage.getOperand(context, "op3");
+        TabulatedFunction operand1 = tempStorage.getOperand(context, op);
         if(Objects.isNull(operand1)) throw new NoOperandException("Нету операнда. :(");
 
         TabulatedDifferentialOperator differentialOperator = new TabulatedDifferentialOperator(
@@ -165,8 +154,17 @@ public class TabulatedOperandsController {
 
         TabulatedFunction result = differentialOperator.derive(operand1);
 
-        tempStorage.setOperand(context, "result2", result);
+        tempStorage.setOperand(context, result_op, result);
         return TabulatedResponseDTO.from(result);
+    }
+
+    @PostMapping("integrate")
+    public String duck(@RequestParam("op") String op) throws BasedException {
+        SecurityContext context = securityContextHolderStrategy.getContext();
+        TabulatedFunction operand1 = tempStorage.getOperand(context, op);
+        if(Objects.isNull(operand1)) throw new NoOperandException("Нету операнда. :(");
+
+        return "Мы не сделали интеграл потому что это задание со *";
     }
 
 

@@ -6,6 +6,7 @@ import functions.ArrayTabulatedFunction;
 import functions.MathFunction;
 import functions.TabulatedFunction;
 import functions.factory.TabulatedFunctionFactory;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +20,13 @@ import ui.dto.TabulatedResponseDTO;
 import ui.dto.TabulatedSimpleRequestDTO;
 import ui.exeptions.ArrayExeptions;
 import ui.exeptions.BasedException;
+import ui.services.CompositeFunctionService;
 import ui.services.SimpleFunctionService;
 import ui.services.TabulatedFactoryService;
 import ui.services.TempStorage;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/functions")
@@ -35,6 +38,8 @@ public class TabulatedFunctionController {
     TabulatedFactoryService tabulatedFactoryService;
     @Autowired
     SimpleFunctionService simpleFunctionService;
+    @Autowired
+    CompositeFunctionService compositeFunctionService;
 
     SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
 
@@ -65,7 +70,7 @@ public class TabulatedFunctionController {
             SecurityContext context = securityContextHolderStrategy.getContext();
 
             TabulatedFunctionFactory factory = tabulatedFactoryService.getActive(context);
-            MathFunction function = simpleFunctionService.construct(request.getClassName());
+            MathFunction function = compositeFunctionService.getComposite(context, request.getClassName());
 
             TabulatedFunction tabulatedFunction = factory.create(function, request.getXStart(), request.getXEnd(), request.getCount());
             tempStorage.setFunction(securityContextHolderStrategy.getContext(), tabulatedFunction);
@@ -77,9 +82,10 @@ public class TabulatedFunctionController {
     }
 
     @GetMapping("simple/all")
-    List<SimpleFuncDTO> getSimpleFunctions(){
-        return simpleFunctionService.getSimpleFunctions();
+    @Operation(summary = "Get all functions", description = "ВКЛЮЧАЯ составные")
+    List<SimpleFuncDTO> getSimpleFunctions() throws BasedException {
+        return Stream.concat(simpleFunctionService.getSimpleFunctions().stream(),
+                compositeFunctionService.getAllComposite(securityContextHolderStrategy.getContext())
+                        .stream().map((e) -> new SimpleFuncDTO(e.getName(), e.getName()))).toList();
     }
-
-
 }
