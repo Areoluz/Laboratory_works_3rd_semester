@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import axios from 'axios';
+import { useFunctions } from '../FunctionsContext'; // Импорт контекста
 
 const generateUniqueId = () => {
     return `${Date.now().toString().slice(-3)}${Math.floor(Math.random() * 1000).toString().padStart(2, '0')}`;
@@ -16,7 +17,36 @@ function CreateFunctionModal({ isOpen, onClose, onCreate }) {
     const [intervalStart, setIntervalStart] = useState('');
     const [intervalEnd, setIntervalEnd] = useState('');
     const [pointCountMath, setPointCountMath] = useState('');
-    const [functionId, setFunctionId] = useState(generateUniqueId()); // Генерация уникального ID для функции
+    const [availableFunctions, setAvailableFunctions] = useState([]); // Список функций
+    const [loadingFunctions, setLoadingFunctions] = useState(true); // Состояние загрузки
+
+    const { addFunction } = useFunctions(); // Извлекаем функцию добавления из контекста
+
+    // Загрузка списка функций с API
+    useEffect(() => {
+        const fetchFunctions = async () => {
+            try {
+                const token = localStorage.getItem('authToken');
+
+                const response = await axios.get('/functions/simple/all', {
+                    baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+                    headers: {
+                        'Authorization': token ? `Bearer ${token}` : '', // Add token to the request header
+                    },
+                });
+                setAvailableFunctions(response.data); // Сохраняем функции в состоянии
+            } catch (error) {
+                console.error('Ошибка при загрузке списка функций:', error);
+                alert('Не удалось загрузить список функций. Попробуйте позже.');
+            } finally {
+                setLoadingFunctions(false);
+            }
+        };
+
+        if (isOpen) {
+            fetchFunctions();
+        }
+    }, [isOpen]);
 
     const handleGenerateTable = () => {
         const rows = Array.from({ length: Number(pointCount) }, () => ({ x: '', y: '' }));
@@ -36,20 +66,17 @@ function CreateFunctionModal({ isOpen, onClose, onCreate }) {
             return;
         }
 
-        const hash = generateUniqueId();
-        // Генерация данных в нужном формате с уникальными id и хэшами
-        const data = tableData.map((row, index) => ({
-            id: index, // Используем индекс как уникальный id
-            x: Number(row.x), // Преобразуем x в число
-            y: Number(row.y), // Преобразуем y в число
-            hash, // Генерация уникального хэша
-        }));
+        // Генерация данных в нужном формате с массивами x и y
+        const xArray = tableData.map(row => Number(row.x)); // Массив X
+        const yArray = tableData.map(row => Number(row.y)); // Массив Y
+
+        const data = { x: xArray, y: yArray };
 
         console.log(data);
 
         try {
-            // Используем axios для выполнения запроса
-            const response = await axios.post('/api/math/bulk', data, {
+            // Используем axios для выполнения запроса с новым форматом данных
+            const response = await axios.post('/functions/array', data, {
                 baseURL: process.env.NEXT_PUBLIC_API_BASE_URL, // Базовый URL через прокси
                 headers: {
                     'Content-Type': 'application/json',
@@ -57,7 +84,7 @@ function CreateFunctionModal({ isOpen, onClose, onCreate }) {
             });
 
             console.log(response.data);
-            // После успешного запроса вызываем onCreate и закрываем модальное окно
+            addFunction({ data: response.data });
             onCreate({ type: 'array', data });
             onClose();
         } catch (error) {
@@ -75,48 +102,33 @@ function CreateFunctionModal({ isOpen, onClose, onCreate }) {
             return;
         }
 
-        const step = (intervalEnd - intervalStart) / (pointCountMath - 1);
-        const xValues = Array.from({ length: pointCountMath }, (_, i) => intervalStart + i * step);
-        const yValues = xValues.map(x => evaluateMathFunction(functionSelect, x)); // Ваша логика вычисления
-
-        const hash = generateHash(); // Генерация одного хэша для всей функции
-        const data = xValues.map((x, i) => ({
-            x,
-            y: yValues[i],
-            hash, // Все точки имеют одинаковый хеш
-            functionId, // ID функции
-        }));
-
-        console.log(data);
+        const payload = {
+            count: Number(pointCountMath),
+            className: functionSelect,
+            xstart: Number(intervalStart),
+            xend: Number(intervalEnd),
+        };
 
         try {
-            const response = await axios.post('/api/math', data, {
+            const response = await axios.post('/functions/simple', payload, {
                 baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
                 headers: {
                     'Content-Type': 'application/json',
+                    //'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
                 },
             });
 
             console.log(response.data);
+            addFunction({ data: response.data });
             onCreate({ type: 'mathFunction', data });
             onClose();
         } catch (error) {
             console.error('Ошибка при добавлении функции:', error);
+            if (error.response) {
+                console.error('Ответ от сервера:', error.response.data);
+            }
             alert('Ошибка при добавлении функции. Попробуйте снова.');
         }
-    };
-
-    const evaluateMathFunction = (func, x) => {
-        switch (func) {
-            case 'sqr': return x ** 2;
-            case 'sin': return Math.sin(x);
-            case 'cos': return Math.cos(x);
-            default: return x;
-        }
-    };
-
-    const generateHash = () => {
-        return Math.floor(Math.random() * 1000000000); // Генерация случайного хэша
     };
 
     const handleOutsideClick = (e) => {
@@ -215,16 +227,22 @@ function CreateFunctionModal({ isOpen, onClose, onCreate }) {
                 )}
                 {scenario === 'mathFunction' && (
                     <div>
-                        <select
-                            value={functionSelect}
-                            onChange={(e) => setFunctionSelect(e.target.value)}
-                            className="select select-bordered text-base-content w-full mb-4"
-                        >
-                            <option value="" disabled>Выберите функцию</option>
-                            <option value="sqr">Квадратичная</option>
-                            <option value="sin">Синус</option>
-                            <option value="cos">Косинус</option>
-                        </select>
+                        {loadingFunctions ? (
+                            <p>Загрузка списка функций...</p>
+                        ) : (
+                            <select
+                                value={functionSelect}
+                                onChange={(e) => setFunctionSelect(e.target.value)}
+                                className="select select-bordered text-base-content w-full mb-4"
+                            >
+                                <option value="" disabled>Выберите функцию</option>
+                                {availableFunctions.map((func) => (
+                                    <option key={func.className} value={func.className}>
+                                        {func.name}
+                                    </option>
+                                ))}
+                            </select>
+                        )}
                         <input
                             placeholder="Количество точек"
                             value={pointCountMath}
