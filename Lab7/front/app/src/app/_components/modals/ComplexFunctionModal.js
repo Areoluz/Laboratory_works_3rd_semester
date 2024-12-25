@@ -4,36 +4,14 @@ import axios from 'axios';
 function ComplexFunctionModal({ isOpen, onClose, onCreate }) {
     const [functionName, setFunctionName] = useState('');
     const [functionTree, setFunctionTree] = useState([]); // Array of nodes representing the tree structure
-    const [availableOperands, setAvailableOperands] = useState([]); // Список доступных операндов
     const [availableFunctions, setAvailableFunctions] = useState([]); // Список доступных функций
 
     useEffect(() => {
         // Загружаем операнды и функции при открытии модального окна
         if (isOpen) {
-            fetchAvailableOperands();
             fetchAvailableFunctions();
         }
     }, [isOpen]);
-
-    const fetchAvailableOperands = async () => {
-        try {
-            const response = await axios.get('/api/operands/getAll', {
-                headers: { 'Content-Type': 'application/json' },
-            });
-
-            if (response.data && typeof response.data === 'object') {
-                const operandsArray = Object.keys(response.data).map((key) => ({
-                    name: key,
-                    data: response.data[key], // Сохраняем данные для каждого операнда
-                }));
-                setAvailableOperands(operandsArray);
-            } else {
-                console.error('Некорректный ответ от сервера:', response.data);
-            }
-        } catch (error) {
-            console.error('Ошибка при загрузке операндов:', error);
-        }
-    };
 
     const fetchAvailableFunctions = async () => {
         try {
@@ -42,8 +20,12 @@ function ComplexFunctionModal({ isOpen, onClose, onCreate }) {
             });
 
             if (response.data && Array.isArray(response.data)) {
+                // Проверьте структуру ответа
+                console.log('Available functions:', response.data);
+
                 const functionsArray = response.data.map((func) => ({
-                    name: func.name, // Предполагается, что объект функции имеет поле "name"
+                    name: func.name,
+                    className: func.className, // Убедитесь, что className есть в ответе
                 }));
                 setAvailableFunctions(functionsArray);
             } else {
@@ -55,7 +37,7 @@ function ComplexFunctionModal({ isOpen, onClose, onCreate }) {
     };
 
     const handleAddOperand = () => {
-        const newNode = { id: Date.now(), type: 'operand', name: '', children: [] };
+        const newNode = { id: Date.now(), type: 'operand', name: '', className: '', children: [] };
         setFunctionTree([...functionTree, newNode]);
     };
 
@@ -90,12 +72,7 @@ function ComplexFunctionModal({ isOpen, onClose, onCreate }) {
                             onChange={(e) => handleUpdateNode(node.id, { name: e.target.value })}
                             className="select select-bordered w-full max-w-xs text-base-content"
                         >
-                            <option value="" disabled>Выберите операнд или функцию</option>
-                            {availableOperands.map((operand) => (
-                                <option key={`operand-${operand.name}`} value={operand.name}>
-                                    Операнд: {operand.name}
-                                </option>
-                            ))}
+                            <option value="" disabled>Выберите функцию</option>
                             {availableFunctions.map((func) => (
                                 <option key={`function-${func.name}`} value={func.name}>
                                     Функция: {func.name}
@@ -129,20 +106,21 @@ function ComplexFunctionModal({ isOpen, onClose, onCreate }) {
             return;
         }
 
-        // Проверяем, является ли функция простой или операндом
-        const innerKey = availableFunctions.some((func) => func.name === firstFunction.name)
-            ? 'className'
-            : 'name';
+        // Получаем className для первой и второй функции, если они есть в списке availableFunctions
+        const firstFunc = availableFunctions.find((func) => func.name === firstFunction.name);
+        const secondFunc = availableFunctions.find((func) => func.name === secondFunction.name);
 
-        const outerKey = availableFunctions.some((func) => func.name === secondFunction.name)
-            ? 'className'
-            : 'name';
+        if (!firstFunc || !secondFunc) {
+            alert('Не найдены выбранные функции в списке доступных функций.');
+            return;
+        }
+        console.log(firstFunc.className);
 
-        // Формируем тело запроса с учетом className для простых функций
+        // Формируем тело запроса с использованием className
         const requestBody = {
             name: functionName,
-            inner: innerKey === 'className' ? firstFunction.className : firstFunction.name,
-            outer: outerKey === 'className' ? secondFunction.className : secondFunction.name,
+            inner: firstFunc.className, // Используем className для первой функции
+            outer: secondFunc.className, // Используем className для второй функции
         };
         console.log(requestBody);
 
@@ -165,7 +143,6 @@ function ComplexFunctionModal({ isOpen, onClose, onCreate }) {
             alert('Произошла ошибка при создании функции. Попробуйте снова.');
         }
     };
-
 
     if (!isOpen) return null;
 
