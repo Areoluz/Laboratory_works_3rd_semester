@@ -15,12 +15,12 @@ export const FunctionsProvider = ({ children }) => {
         // Логика для загрузки данных функций, например, из API
         const fetchFunctions = async () => {
             try {
-                const response = await axios.get('/api/math', {
-                    baseURL: process.env.NEXT_PUBLIC_API_BASE_URL, // Базовый URL через прокси
+                const response = await axios.get('/api/functions/tabulated', {
+                    //baseURL: process.env.NEXT_PUBLIC_API_BASE_URL, // Базовый URL через прокси
                 });
 
                 console.log(response.data);
-                setFunctions(groupByHash(response.data));
+                setFunctions(response.data);
             } catch (err) {
                 console.error('Ошибка при загрузке данных:', err);
             }
@@ -29,30 +29,8 @@ export const FunctionsProvider = ({ children }) => {
         fetchFunctions();
     }, []); // Эффект будет вызван один раз при монтировании компонента
 
-    // Группировка данных по hash
-    const groupByHash = (data) => {
-        const grouped = {};
-
-        data.forEach((item) => {
-            const { hash, x, y } = item;
-            if (!grouped[hash]) {
-                grouped[hash] = {
-                    hash,
-                    points: [], // Массив пар x-y
-                };
-            }
-            grouped[hash].points.push({ x, y });
-        });
-
-        return Object.values(grouped);
-    };
-
-    const addFunction = (newFunction) => {
-        setFunctions((prevFunctions) => [...prevFunctions, newFunction]);
-    };
-
     return (
-        <FunctionsContext.Provider value={{ functions, setFunctions, addFunction }}>
+        <FunctionsContext.Provider value={{ functions, setFunctions}}>
             {children}
         </FunctionsContext.Provider>
     );

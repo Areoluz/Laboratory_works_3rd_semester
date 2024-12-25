@@ -23,8 +23,8 @@ function LoginPage() {
             formData.append('username', username);
             formData.append('password', password);
 
-            const response = await axios.post('/login', formData, {
-                baseURL: 'http://localhost:8080',
+            const response = await axios.post('/api/login', formData, {
+                //baseURL: 'http://localhost:8080',
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },

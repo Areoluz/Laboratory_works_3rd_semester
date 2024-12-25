@@ -9,8 +9,8 @@ function SettingsModal({ isOpen, onClose }) {
     useEffect(() => {
         const fetchFactories = async () => {
             try {
-                const response = await axios.get('/factory/all', {
-                    baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+                const response = await axios.get('/api/factory/all', {
+
                 });
                 // Создаем массив className для каждого объекта
                 const classNames = response.data.map((factory) => factory.className);
@@ -27,10 +27,32 @@ function SettingsModal({ isOpen, onClose }) {
         }
     }, [isOpen]); // Эффект зависит от isOpen
 
+    // Загружаем текущую выбранную фабрику
+    useEffect(() => {
+        const fetchSelectedFactory = async () => {
+            try {
+                const response = await axios.get('/api/factory');
+                // Предполагаем, что ответ содержит объект с выбранной фабрикой
+                const selectedFactory = response.data.className;
+
+                setFactoryType(selectedFactory); // Устанавливаем выбранную фабрику в состояние
+            } catch (error) {
+                console.error('Ошибка при загрузке выбранной фабрики:', error);
+                alert('Не удалось загрузить выбранную фабрику. Попробуйте позже.');
+            }
+        };
+
+        if (isOpen) {
+            fetchSelectedFactory();
+        }
+    }, [isOpen]); // Эффект зависит от isOpen
+
     const handleSave = async () => {
         try {
-            const response = await axios.post('/factory', { factoryType }, {
-                baseURL: process.env.NEXT_PUBLIC_API_BASE_URL, // Базовый URL через прокси
+            const response = await axios.post('/api/factory', null, {
+               params: {
+                   'className': factoryType,
+                },
                 headers: {
                     'Content-Type': 'application/json',
                 },

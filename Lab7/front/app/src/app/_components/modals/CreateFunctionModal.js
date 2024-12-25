@@ -4,11 +4,6 @@ import React, {useEffect, useState} from 'react';
 import axios from 'axios';
 import { useFunctions } from '../FunctionsContext'; // Импорт контекста
 
-const generateUniqueId = () => {
-    return `${Date.now().toString().slice(-3)}${Math.floor(Math.random() * 1000).toString().padStart(2, '0')}`;
-};
-
-
 function CreateFunctionModal({ isOpen, onClose, onCreate }) {
     const [scenario, setScenario] = useState(null); // null, 'array', or 'mathFunction'
     const [pointCount, setPointCount] = useState('');
@@ -19,8 +14,7 @@ function CreateFunctionModal({ isOpen, onClose, onCreate }) {
     const [pointCountMath, setPointCountMath] = useState('');
     const [availableFunctions, setAvailableFunctions] = useState([]); // Список функций
     const [loadingFunctions, setLoadingFunctions] = useState(true); // Состояние загрузки
-
-    const { addFunction } = useFunctions(); // Извлекаем функцию добавления из контекста
+    const [selectedOperand, setSelectedOperand] = useState('op1'); // Выбор операнда: op1 или op2
 
     // Загрузка списка функций с API
     useEffect(() => {
@@ -28,8 +22,7 @@ function CreateFunctionModal({ isOpen, onClose, onCreate }) {
             try {
                 const token = localStorage.getItem('authToken');
 
-                const response = await axios.get('/functions/simple/all', {
-                    baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+                const response = await axios.get('/api/functions/simple/all', {
                     headers: {
                         'Authorization': token ? `Bearer ${token}` : '', // Add token to the request header
                     },
@@ -76,15 +69,25 @@ function CreateFunctionModal({ isOpen, onClose, onCreate }) {
 
         try {
             // Используем axios для выполнения запроса с новым форматом данных
-            const response = await axios.post('/functions/array', data, {
-                baseURL: process.env.NEXT_PUBLIC_API_BASE_URL, // Базовый URL через прокси
+            const response = await axios.post('/api/functions/array', data, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
             });
 
             console.log(response.data);
-            addFunction({ data: response.data });
+
+            // Устанавливаем функцию как op1
+            await axios.post('/api/operands/set', null, {
+                params: {
+                    'id':selectedOperand,
+                },
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            //addFunction({ data: response.data });
             onCreate({ type: 'array', data });
             onClose();
         } catch (error) {
@@ -110,17 +113,27 @@ function CreateFunctionModal({ isOpen, onClose, onCreate }) {
         };
 
         try {
-            const response = await axios.post('/functions/simple', payload, {
-                baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+            const response = await axios.post('/api/functions/simple', payload, {
+                //baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
                 headers: {
                     'Content-Type': 'application/json',
                     //'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
                 },
             });
 
+            // Устанавливаем функцию как op1
+            await axios.post('/api/operands/set', null, {
+                params: {
+                    'id': selectedOperand,
+                },
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
             console.log(response.data);
-            addFunction({ data: response.data });
-            onCreate({ type: 'mathFunction', data });
+            //addFunction({ data: response.data });
+            onCreate({ type: 'mathFunction', payload });
             onClose();
         } catch (error) {
             console.error('Ошибка при добавлении функции:', error);
@@ -150,6 +163,20 @@ function CreateFunctionModal({ isOpen, onClose, onCreate }) {
                 onClick={(e) => e.stopPropagation()} // Останавливаем всплытие клика внутри модального окна
             >
                 <h2 className="text-xl font-bold mb-4 text-primary-content">Создать новую функцию</h2>
+                <div className="mb-4">
+                    <label className="block text-base-content font-semibold mb-2">
+                        Выберите операнд:
+                    </label>
+                    <select
+                        value={selectedOperand}
+                        onChange={(e) => setSelectedOperand(e.target.value)}
+                        className="select select-bordered text-base-content w-full"
+                    >
+                        <option value="op1">op1</option>
+                        <option value="op2">op2</option>
+                        <option value="op3">op3</option>
+                    </select>
+                </div>
                 {!scenario && (
                     <div className="flex flex-col gap-4">
                         <button

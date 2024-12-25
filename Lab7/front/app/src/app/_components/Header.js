@@ -7,6 +7,7 @@ import { TbMathIntegral } from "react-icons/tb";
 import { IoSettingsSharp } from "react-icons/io5";
 import { MdAutoGraph } from "react-icons/md";
 import { TiPlus } from "react-icons/ti";
+import { TbDelta } from "react-icons/tb";
 import './Header.css';
 
 import CreateFunctionModal from './modals/CreateFunctionModal';
@@ -15,6 +16,7 @@ import ComplexFunctionModal from "@/app/_components/modals/ComplexFunctionModal"
 import FunctionOperationsModal from "@/app/_components/modals/FunctionOperationsModal";
 import SettingsModal from "@/app/_components/modals/SettingsModal";
 import GraphModal from "@/app/_components/modals/GraphModal";
+import DeriveModal from "@/app/_components/modals/DeriveModal";
 
 function Header() {
     const [currentTheme, setCurrentTheme] = useState('winter');
@@ -103,6 +105,20 @@ function Header() {
                                     <TbMathIntegral size={25} className="text-base-content"/>
                                 </div>
                                 <span className="ml-3 lg:hidden text-base-content">Интеграл</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a
+                                onClick={() => {
+                                    setOpenModal('derive');
+                                    setIsSidebarOpen(false);
+                                }}
+                                className="flex items-center p-2 rounded-lg hover:bg-base-300 dark:hover:bg-base-700"
+                            >
+                                <div className="tooltip tooltip-right" data-tip="Дифференциал">
+                                    <TbDelta size={25} className="text-base-content"/>
+                                </div>
+                                <span className="ml-3 lg:hidden text-base-content">Дифференциал</span>
                             </a>
                         </li>
                         <li>
@@ -225,6 +241,12 @@ function Header() {
             {openModal === 'graph' && (
                 <GraphModal
                     isOpen={openModal === 'graph'}
+                    onClose={() => setOpenModal(null)}
+                />
+            )}
+            {openModal === 'derive' && (
+                <DeriveModal
+                    isOpen={openModal === 'derive'}
                     onClose={() => setOpenModal(null)}
                 />
             )}
