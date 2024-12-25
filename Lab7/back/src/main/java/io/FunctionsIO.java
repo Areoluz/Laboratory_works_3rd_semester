@@ -15,7 +15,7 @@ public final class FunctionsIO {
         throw new UnsupportedOperationException("This class cannot be instantiated.");
     }
 
-    static TabulatedFunction deserialize(BufferedInputStream stream) throws IOException, ClassNotFoundException {
+    public static TabulatedFunction deserialize(BufferedInputStream stream) throws IOException, ClassNotFoundException {
         var inp = new ObjectInputStream(stream);
         return (TabulatedFunction) inp.readObject();
     }

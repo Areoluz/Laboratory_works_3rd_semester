@@ -5,12 +5,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 
-class IdentifyFunctionTest {
-    private IdentifyFunction function;
+class IdentityFunctionTest {
+    private IdentityFunction function;
 
     @BeforeEach
     void setUp() {
-        function = new IdentifyFunction();
+        function = new IdentityFunction();
     }
 
     @Test
