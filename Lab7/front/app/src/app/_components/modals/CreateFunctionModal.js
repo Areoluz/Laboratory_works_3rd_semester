@@ -200,14 +200,15 @@ function CreateFunctionModal({ isOpen, onClose, onCreate }) {
                             Сгенерировать таблицу
                         </button>
                         {tableData.length > 0 && (
-                            <table className="table w-full mb-4">
+                            <div className="max-h-96 scroll-container">
+                            <table className="table w-full mb-4 max-h-96 scroll-container">
                                 <thead>
                                 <tr>
                                     <th>X</th>
                                     <th>Y</th>
                                 </tr>
                                 </thead>
-                                <tbody>
+                                <tbody className="max-h-96 scroll-container">
                                 {tableData.map((row, index) => (
                                     <tr key={index}>
                                         <td>
@@ -236,6 +237,7 @@ function CreateFunctionModal({ isOpen, onClose, onCreate }) {
                                 ))}
                                 </tbody>
                             </table>
+                            </div>
                         )}
                         <div className="flex gap-4">
                             <button onClick={handleCreateArrayFunction} className="btn btn-secondary">
