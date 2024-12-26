@@ -1,5 +1,6 @@
 package ui.controllers;
 
+import concurrent.IntegralTaskExecutor;
 import functions.TabulatedFunction;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -112,6 +113,14 @@ public class TabulatedOperandsController {
         tempStorage.removeOperand(securityContextHolderStrategy.getContext(), id);
     }
 
+    @GetMapping("calculateY")
+    public Double calculateY(@RequestParam("id") String id, @RequestParam("x") Double x) throws BasedException {
+        SecurityContext context = securityContextHolderStrategy.getContext();
+        TabulatedFunction function = tempStorage.getOperand(context, id);
+        if(Objects.isNull(function)) throw new NoOperandException("Такого операнда не существует.");
+        return function.apply(x);
+    }
+
     @PostMapping("calculate")
     @Operation(summary = "Calculate result using op1 and op2", description =
             "operations:" +
@@ -140,8 +149,6 @@ public class TabulatedOperandsController {
         return TabulatedResponseDTO.from(result);
     }
 
-    // Используется только op3 и result2
-
     @PostMapping("derive")
     public TabulatedResponseDTO fuck(@RequestParam("op") String op, @RequestParam("result") String result_op) throws BasedException {
         SecurityContext context = securityContextHolderStrategy.getContext();
@@ -159,12 +166,14 @@ public class TabulatedOperandsController {
     }
 
     @PostMapping("integrate")
-    public String duck(@RequestParam("op") String op) throws BasedException {
+    public Double duck(@RequestParam("op") String op, @RequestParam(value = "nthreads", defaultValue = "1") Integer thread_count) throws Exception {
         SecurityContext context = securityContextHolderStrategy.getContext();
         TabulatedFunction operand1 = tempStorage.getOperand(context, op);
         if(Objects.isNull(operand1)) throw new NoOperandException("Нету операнда. :(");
 
-        return "Мы не сделали интеграл потому что это задание со *";
+        IntegralTaskExecutor executor = new IntegralTaskExecutor(thread_count);
+
+        return executor.integrate(operand1);
     }
 
 
