@@ -158,12 +158,6 @@ function DeriveModal({ isOpen, onClose }) {
                 )}
 
                 <div className="flex-col gap-4 mt-6">
-                    <button onClick={saveResult} className="btn btn-secondary mb-2 w-full">
-                        Сохранить
-                    </button>
-                    <button onClick={loadResult} className="btn btn-accent mb-2 w-full">
-                        Загрузить
-                    </button>
                     <button onClick={onClose} className="btn btn-error mb-2 w-full">
                         Закрыть
                     </button>

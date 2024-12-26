@@ -177,9 +177,6 @@ function GraphModal({ isOpen, onClose }) {
                 </div>
 
                 <div className="flex gap-4 mb-4">
-                    <button className="btn btn-success" onClick={handleSave}>
-                        Сохранить
-                    </button>
                     <button className="btn btn-error" onClick={onClose}>
                         Закрыть
                     </button>

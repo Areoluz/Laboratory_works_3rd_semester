@@ -127,6 +127,7 @@ function FunctionOperationsModal({ isOpen, onClose }) {
         } catch (e) {
             if (e.name !== 'AbortError') throw e
         }
+
     }
 
     async function onUpload(id) {
@@ -137,7 +138,7 @@ function FunctionOperationsModal({ isOpen, onClose }) {
             let response
             if (handle.name.endsWith('.xml')) {
                 response = await axios.post(`/api/operands/xml`, await fileData.text(), {
-                    params: { id: saveTarget.id },
+                    params: { id: id },
                     headers: {
                         'Content-Type': 'application/xml',
                     },
@@ -147,7 +148,7 @@ function FunctionOperationsModal({ isOpen, onClose }) {
                     `/api/operands/binary`,
                     await fileData.arrayBuffer(),
                     {
-                        params: { id: saveTarget.id },
+                        params: { id: id },
                         headers: {
                             'Content-Type': 'application/octet-stream',
                         },
@@ -155,14 +156,11 @@ function FunctionOperationsModal({ isOpen, onClose }) {
                 )
             }
 
-            if (id === 'op1') {
-                setFunction1(response.data);
-            } else if (id === 'op2') {
-                setFunction2(response.data);
-            }
         } catch (e) {
             if (e.name !== 'AbortError') throw e
         }
+        fetchFunctionData('op1', setFunction1);
+        fetchFunctionData('op2', setFunction2);
     }
 
     const handleCreateFunction = () => {
@@ -214,7 +212,7 @@ function FunctionOperationsModal({ isOpen, onClose }) {
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {tableData.map((row, i) => (
+                                {(Array.isArray(tableData) ? tableData : []).map((row, i) => (
                                     <tr key={i}>
                                         <td>
                                             <input
@@ -247,12 +245,6 @@ function FunctionOperationsModal({ isOpen, onClose }) {
                             {idx !== 2 && (
                                 <div className="flex-col gap-2 p-2">
                                     <button
-                                        onClick={() => fetchFunctionData(idx === 0 ? 'op1' : 'op2', idx === 0 ? setFunction1 : setFunction2)}
-                                        className="btn btn-primary m-2"
-                                    >
-                                        Загрузить
-                                    </button>
-                                    <button
                                         onClick={() => handleCreateFunction()}
                                         className="btn btn-success m-2"
                                     >
@@ -274,6 +266,7 @@ function FunctionOperationsModal({ isOpen, onClose }) {
                             )}
                         </div>
                     ))}
+
                 </div>
 
                 <div className="flex gap-4 justify-center mt-4">
