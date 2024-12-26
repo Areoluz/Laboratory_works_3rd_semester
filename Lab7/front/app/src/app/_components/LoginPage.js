@@ -3,13 +3,15 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import RegisterModal from './modals/RegisterModal'; // Импорт модального окна
 
 function LoginPage() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const router = useRouter(); // Инициализируем роутер
+    const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
+    const router = useRouter();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -18,13 +20,11 @@ function LoginPage() {
         setError(null);
 
         try {
-            // Создаем объект FormData для отправки данных
             const formData = new FormData();
             formData.append('username', username);
             formData.append('password', password);
 
             const response = await axios.post('/api/login', formData, {
-                //baseURL: 'http://localhost:8080',
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -32,8 +32,7 @@ function LoginPage() {
 
             console.log(response.data);
 
-            // Перенаправление на страницу /main
-            router.push('/main');
+            router.push('/main'); // Перенаправление на страницу /main после успешного входа
         } catch (err) {
             console.error('Ошибка при входе:', err);
             setError(err.response?.data?.message || 'Ошибка при входе. Попробуйте снова.');
@@ -80,7 +79,7 @@ function LoginPage() {
                             required
                         />
                     </div>
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col gap-4">
                         <button
                             type="submit"
                             className={`btn btn-primary w-full ${loading ? 'loading' : ''}`}
@@ -88,9 +87,28 @@ function LoginPage() {
                         >
                             {loading ? 'Вход...' : 'Войти'}
                         </button>
+                        <button
+                            type="button"
+                            onClick={() => setIsRegisterModalOpen(true)}
+                            className="btn btn-secondary w-full"
+                        >
+                            У меня нет аккаунта
+                        </button>
                     </div>
                 </form>
             </div>
+
+            <RegisterModal
+                isOpen={isRegisterModalOpen}
+                onClose={(username) => {
+                    setIsRegisterModalOpen(false);
+                    if (username) {
+                        setRegisterUsername(username);
+                        setUsername(username); // Автозаполнение поля логина
+                        alert('Пользователь зарегистрирован. Теперь войдите.');
+                    }
+                }}
+            />
         </div>
     );
 }
