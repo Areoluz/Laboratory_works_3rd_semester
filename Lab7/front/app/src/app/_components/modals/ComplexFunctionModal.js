@@ -131,7 +131,7 @@ function ComplexFunctionModal({ isOpen, onClose, onCreate }) {
             });
 
             if (response.status === 200) {
-                alert('Функция успешно создана!');
+                console.log('Функция успешно создана!');
                 onCreate(requestBody); // Вызываем onCreate для обновления внешнего состояния
                 onClose();
             } else {

@@ -28,11 +28,32 @@ function GraphModal({ isOpen, onClose }) {
         onClose();
     };
 
-    const handleCalculateAtX = () => {
-        if (selectedX !== null && xValues.includes(selectedX)) {
-            const index = xValues.indexOf(selectedX);
-            const yAtX = yValues[index]; // Получаем значение y для выбранного x
-            setCalculatedY(yAtX); // Обновляем состояние с вычисленным y
+    const handleCalculateAtX = async () => {
+        if (selectedX === null || isNaN(selectedX)) {
+            alert('Введите корректное значение x');
+            return;
+        }
+
+        try {
+            const response = await axios.get('/api/operands/calculateY', {
+                params: {
+                    id: selectedOperand, // ID функции
+                    x: selectedX, // Точка, в которой вычисляем y
+                },
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            console.log(response.data);
+
+            if (response.data !== 'undefined') {
+                setCalculatedY(response.data); // Обновляем вычисленное значение y
+            } else {
+                alert('Сервер не вернул корректное значение y');
+            }
+        } catch (error) {
+            console.error('Ошибка при вычислении значения y:', error);
+            alert('Не удалось вычислить значение y. Попробуйте снова.');
         }
     };
 

@@ -8,7 +8,7 @@ function IntegralModal({ isOpen, onClose }) {
     const [executionTime, setExecutionTime] = useState(null); // Время выполнения
     const [operands, setOperands] = useState([]); // Список операндов
     const [selectedOperand, setSelectedOperand] = useState(''); // Выбранный операнд
-    const [threadCount, setThreadCount] = useState(1); // Количество потоков (не используется, но можно добавить по желанию)
+    const [threadCount, setThreadCount] = useState(null); // Количество потоков// Количество потоков
 
     if (!isOpen) return null;
 
@@ -61,6 +61,7 @@ function IntegralModal({ isOpen, onClose }) {
             const response = await axios.post('/api/operands/integrate', null, {
                 params: {
                     op: selectedOperand,
+                    nthreads: threadCount, // Передаем количество потоков
                 },
             });
 
@@ -100,6 +101,24 @@ function IntegralModal({ isOpen, onClose }) {
                             </option>
                         ))}
                     </select>
+                </div>
+
+                {/* Поле для ввода количества потоков */}
+                <div className="mb-4">
+                    <label className="block text-sm font-medium text-base-content mb-2">Количество потоков:</label>
+                    <input
+                        type="number"
+                        className="input input-bordered w-full text-base-content"
+                        value={threadCount === null ? '' : threadCount} // Отображаем пустую строку, если значение `null`
+                        min={1}
+                        max={8}
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            // Ограничиваем значение от 1 до 8
+                            const parsedValue = value === '' ? null : Math.min(Math.max(Number(value), 1), 8);
+                            setThreadCount(parsedValue);
+                        }}
+                    />
                 </div>
 
                 <div className="flex justify-between items-center mb-4">

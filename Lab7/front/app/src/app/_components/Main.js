@@ -6,14 +6,21 @@ function Main() {
     const [isModalOpen, setIsModalOpen] = useState(false); // Стейт для открытия/закрытия модального окна
     const [operands, setOperands] = useState([]); // Список операндов
 
-    // Открытие модального окна
-    const openModal = async (operandId) => {
+    // Сопоставление ID операндов с их понятными именами
+    const operandNames = {
+        op1: 'Функция 1',
+        op2: 'Функция 2',
+        op3: 'Функция 3',
+        result: 'Результат',
+    };
+
+    // Функция для загрузки операндов
+    const fetchOperands = async () => {
         try {
-            // Отправляем запрос для получения всех операндов
             const token = localStorage.getItem('authToken');
             const response = await axios.get('/api/operands/getAll', {
                 headers: {
-                    'Authorization': token ? `Bearer ${token}` : '', // Добавляем токен в заголовок
+                    Authorization: token ? `Bearer ${token}` : '', // Добавляем токен в заголовок
                 },
             });
 
@@ -25,16 +32,18 @@ function Main() {
             }));
 
             setOperands(transformedOperands);
-
-            // Находим операнд по id и открываем модальное окно с его данными
-            const operand = transformedOperands.find((op) => op.id === operandId);
-            setModalData(operand);
-            setIsModalOpen(true);
-
         } catch (error) {
             console.error('Ошибка при загрузке операндов:', error);
             alert('Не удалось загрузить список операндов. Попробуйте позже.');
         }
+    };
+
+    // Открытие модального окна
+    const openModal = (operandId) => {
+        // Находим операнд по id и открываем модальное окно с его данными
+        const operand = operands.find((op) => op.id === operandId);
+        setModalData(operand);
+        setIsModalOpen(true);
     };
 
     // Закрытие модального окна
@@ -50,34 +59,14 @@ function Main() {
     };
 
     useEffect(() => {
-        // Initial loading of operands on component mount
-        const fetchOperands = async () => {
-            try {
-                const token = localStorage.getItem('authToken');
-
-                const response = await axios.get('/api/operands/getAll', {
-                    headers: {
-                        'Authorization': token ? `Bearer ${token}` : '', // Добавляем токен в заголовок
-                    },
-                });
-
-                console.log(response.data);
-
-                // Преобразуем объект в массив
-                const transformedOperands = Object.entries(response.data).map(([key, value]) => ({
-                    id: key,
-                    x: value.x,
-                    y: value.y,
-                }));
-
-                setOperands(transformedOperands);
-            } catch (error) {
-                console.error('Ошибка при загрузке операндов:', error);
-                alert('Не удалось загрузить список операндов. Попробуйте позже.');
-            }
-        };
-
+        // Запускаем загрузку при монтировании компонента
         fetchOperands();
+
+        // Устанавливаем интервал обновления каждые 5 секунд
+        const intervalId = setInterval(fetchOperands, 5000);
+
+        // Очищаем интервал при размонтировании компонента
+        return () => clearInterval(intervalId);
     }, []);
 
     return (
@@ -89,27 +78,23 @@ function Main() {
                 <div className="flex flex-col gap-6">
                     <div className="bg-base-100 dark:bg-base-700 p-6 rounded-lg shadow-md">
                         <h1 className="text-md font-bold mb-4 text-base-content">
-                            Приложение предназначено для работы с табулированными функциями. Оно предоставляет возможность выполнять следующие операции:</h1>
-
-                        <h1 className="text-md text-base-content">• Выполнение арифметических операций между функциями.</h1>
-
-                        <h1 className="text-md text-base-content">• Добавление функции в качестве операнда </h1>
-
-                        <h1 className="text-md text-base-content">• Дифференцирование функции. </h1>
-
-                        <h1 className="text-md text-base-content">• Управление значениями точек
-                            функции. </h1>
-
-                        <h1 className="text-md mb-4 text-base-content">• Экспорт и импорт функций
-                            (сериализация/десериализация). </h1>
-
-                        <h1 className="text-md mb-10 font-bold text-base-content">Для взаимодействия с
-                            приложением, рекмоендуется использовать всплывающие над иконками подсказки. </h1>
+                            Приложение предназначено для работы с табулированными функциями. Оно предоставляет возможность выполнять следующие операции:
+                        </h1>
+                        <ul className="list-disc pl-4 text-base-content">
+                            <li>Выполнение арифметических операций между функциями.</li>
+                            <li>Добавление функции в качестве операнда.</li>
+                            <li>Дифференцирование функции.</li>
+                            <li>Управление значениями точек функции.</li>
+                            <li>Экспорт и импорт функций (сериализация/десериализация).</li>
+                        </ul>
+                        <h1 className="text-md mb-10 font-bold text-base-content">
+                            Для взаимодействия с приложением, рекомендуется использовать всплывающие подсказки.
+                        </h1>
 
                         {/* Таблица операндов */}
                         <div className="overflow-x-auto">
                             <div className="flex w-full mb-2 text-base-content">
-                                <div className="w-1/4 font-semibold">ID</div>
+                                <div className="w-1/4 font-semibold">Название</div>
                                 <div className="w-1/4 font-semibold">Количество точек</div>
                                 <div className="w-1/2 font-semibold">Действия</div>
                             </div>
@@ -118,7 +103,7 @@ function Main() {
                             {operands.map((operand) => (
                                 <div key={operand.id} className="flex w-full mb-2 text-base-content">
                                     <div className="w-1/4">
-                                        {operand.id}
+                                        {operandNames[operand.id] || operand.id} {/* Преобразуем ID в название */}
                                         {operand.id === 'op1' && (
                                             <button className="ml-2 btn btn-primary btn-sm">главный</button>
                                         )}
