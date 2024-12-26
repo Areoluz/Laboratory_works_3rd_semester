@@ -68,7 +68,16 @@ public class TabulatedOperandsController {
         return TabulatedResponseDTO.from(function);
     }
 
-    @GetMapping("/binary")
+    @Operation(summary = "Copy operand")
+    @GetMapping("/copy")
+    public TabulatedResponseDTO copyOperand(@RequestParam("from") String from, @RequestParam("to") String to) throws BasedException {
+        SecurityContext context = securityContextHolderStrategy.getContext();
+        TabulatedFunction function = tempStorage.getOperand(context, from);
+        tempStorage.setFunction(context, function);
+        return TabulatedResponseDTO.from(function);
+    }
+
+    @GetMapping(value = "/binary", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<Resource> getOperandSerialized(@RequestParam("id") String id) throws BasedException {
         TabulatedFunction function = tempStorage.getOperand(securityContextHolderStrategy.getContext(), id);
         ByteArrayResource resource = new ByteArrayResource(sereService.serializeFunction(function));
@@ -81,6 +90,19 @@ public class TabulatedOperandsController {
     @PostMapping("/binary")
     public TabulatedResponseDTO setOperandSerialized(@RequestParam("id") String id, @RequestBody byte[] data) throws BasedException {
         TabulatedFunction function = sereService.deserializeFunction(data);
+        tempStorage.setOperand(securityContextHolderStrategy.getContext(), id, function);
+        return TabulatedResponseDTO.from(function);
+    }
+
+    @GetMapping(value = "/xml", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public String getOperandSerializedXML(@RequestParam("id") String id) throws BasedException {
+        TabulatedFunction function = tempStorage.getOperand(securityContextHolderStrategy.getContext(), id);
+        return sereService.serializeFunctionXML(function);
+    }
+
+    @PostMapping("/xml")
+    public TabulatedResponseDTO setOperandSerializedXML(@RequestParam("id") String id, @RequestBody String data) throws BasedException {
+        TabulatedFunction function = sereService.deserializeFunctionXML(data);
         tempStorage.setOperand(securityContextHolderStrategy.getContext(), id, function);
         return TabulatedResponseDTO.from(function);
     }

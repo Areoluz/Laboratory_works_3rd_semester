@@ -34,4 +34,22 @@ public class SereService {
         }
     }
 
+    public String serializeFunctionXML(TabulatedFunction func) throws BasedException {
+        try {
+            StringWriter swr = new StringWriter();
+            BufferedWriter bufferedWriter = new BufferedWriter(swr);
+            FunctionsIO.serializeXml(bufferedWriter, func);
+            bufferedWriter.flush();
+            return swr.toString();
+        } catch (IOException e) {
+            throw new SerializeException("Неможно средизировать функцию"); //JuliaK
+        }
+    }
+
+    public TabulatedFunction deserializeFunctionXML(String content) {
+        StringReader rdr = new StringReader(content);
+        BufferedReader bufferedReader = new BufferedReader(rdr);
+        return FunctionsIO.deserializeXml(bufferedReader);
+    }
+
 }
