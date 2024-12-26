@@ -167,39 +167,6 @@ function FunctionOperationsModal({ isOpen, onClose }) {
         setIsCreateFunctionModalOpen(true);
     };
 
-    const handleSaveFunction = (id, func) => {
-        setSaveTarget({ id, func });
-        setIsSaveModalOpen(true);
-    };
-
-    const handleSaveToXml = async () => {
-        try {
-            await axios.get(`/api/operands/xml`, {
-                params: { id: saveTarget.id }
-            });
-            alert('Функция успешно сохранена в формате XML.');
-        } catch (error) {
-            console.error('Ошибка при сохранении в XML:', error);
-            setError('Не удалось сохранить функцию в XML.');
-        } finally {
-            setIsSaveModalOpen(false);
-        }
-    };
-
-    const handleSaveToBinary = async () => {
-        try {
-            await axios.get(`/api/operands/binary`, {
-                params: { id: saveTarget.id }
-            });
-            alert('Функция успешно сериализована.');
-        } catch (error) {
-            console.error('Ошибка при сериализации:', error);
-            setError('Не удалось сериализовать функцию.');
-        } finally {
-            setIsSaveModalOpen(false);
-        }
-    };
-
     if (!isOpen) return null;
 
     return (
@@ -262,19 +229,13 @@ function FunctionOperationsModal({ isOpen, onClose }) {
                             {idx !== 2 && (
                                 <div className="flex-col gap-2 p-2">
                                     <button
-                                        onClick={() => fetchFunctionData(idx === 0 ? 'op1' : 'op2', idx === 0 ? setFunction1 : setFunction2)}
-                                        className="btn btn-primary m-2"
-                                    >
-                                        Загрузить
-                                    </button>
-                                    <button
                                         onClick={() => handleCreateFunction()}
                                         className="btn btn-success m-2"
                                     >
                                         Создать
                                     </button>
                                     <button
-                                        onClick={() => handleSaveFunction(idx === 0 ? 'op1' : 'op2', idx === 0 ? function1 : function2)}
+                                        onClick={() => onSave(idx === 0 ? 'op1' : 'op2', idx === 0 ? function1 : function2)}
                                         className="btn btn-secondary m-2"
                                     >
                                         Сохранить

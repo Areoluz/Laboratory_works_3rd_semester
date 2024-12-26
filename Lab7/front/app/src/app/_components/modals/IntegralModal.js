@@ -8,9 +8,16 @@ function IntegralModal({ isOpen, onClose }) {
     const [executionTime, setExecutionTime] = useState(null); // Время выполнения
     const [operands, setOperands] = useState([]); // Список операндов
     const [selectedOperand, setSelectedOperand] = useState(''); // Выбранный операнд
-    const [threadCount, setThreadCount] = useState(null); // Количество потоков// Количество потоков
+    const [threadCount, setThreadCount] = useState(null); // Количество потоков
 
     if (!isOpen) return null;
+
+    const operandNames = {
+        op1: 'Функция 1',
+        op2: 'Функция 2',
+        op3: 'Функция 3',
+        result: 'Результат',
+    };
 
     const handleOutsideClick = (e) => {
         if (e.target.id === 'modal-overlay') {
@@ -97,7 +104,7 @@ function IntegralModal({ isOpen, onClose }) {
                         <option value="">Выберите операнд</option>
                         {operands.map((operand) => (
                             <option key={operand.id} value={operand.id}>
-                                {operand.id}
+                                {operandNames[operand.id] || operand.id} {/* Используем имя из operandNames или id, если имя не найдено */}
                             </option>
                         ))}
                     </select>

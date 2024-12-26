@@ -15,6 +15,13 @@ function GraphModal({ isOpen, onClose }) {
 
     // Список доступных операндов
     const operands = ['op1', 'op2', 'op3', 'result'];
+    // Сопоставление ID операндов с их понятными именами
+    const operandNames = {
+        op1: 'Функция 1',
+        op2: 'Функция 2',
+        op3: 'Функция 3',
+        result: 'Результат',
+    };
 
     const generateFunction = (xData, yData) => {
         // Получаем массивы x и y от сервера и строим график
@@ -93,7 +100,7 @@ function GraphModal({ isOpen, onClose }) {
         labels: xValues,
         datasets: [
             {
-                label: 'Функция',
+                label: operandNames[selectedOperand], // Отображаем имя операнда
                 data: yValues,
                 fill: false,
                 borderColor: 'rgb(75, 192, 192)',
@@ -124,7 +131,7 @@ function GraphModal({ isOpen, onClose }) {
                     >
                         {operands.map((operand) => (
                             <option key={operand} value={operand}>
-                                {operand}
+                                {operandNames[operand]}
                             </option>
                         ))}
                     </select>
@@ -170,9 +177,6 @@ function GraphModal({ isOpen, onClose }) {
                 </div>
 
                 <div className="flex gap-4 mb-4">
-                    <button className="btn btn-primary" onClick={() => generateFunction([], [])}>
-                        Создать функцию
-                    </button>
                     <button className="btn btn-success" onClick={handleSave}>
                         Сохранить
                     </button>

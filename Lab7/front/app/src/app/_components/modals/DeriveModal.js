@@ -11,6 +11,13 @@ function DeriveModal({ isOpen, onClose }) {
 
     if (!isOpen) return null;
 
+    const operandNames = {
+        op1: 'Функция 1',
+        op2: 'Функция 2',
+        op3: 'Функция 3',
+        result: 'Результат',
+    };
+
     const handleOutsideClick = (e) => {
         if (e.target.id === 'modal-overlay') {
             onClose();
@@ -124,10 +131,10 @@ function DeriveModal({ isOpen, onClose }) {
                         value={selectedOperand}
                         onChange={(e) => setSelectedOperand(e.target.value)}
                     >
-                        <option value="">Выберите операнд </option>
+                        <option value="">Выберите операнд</option>
                         {operands.map((operand) => (
                             <option key={operand.id} value={operand.id}>
-                                {operand.id}
+                                {operandNames[operand.id] || operand.id} {/* Отображаем имена из operandNames */}
                             </option>
                         ))}
                     </select>

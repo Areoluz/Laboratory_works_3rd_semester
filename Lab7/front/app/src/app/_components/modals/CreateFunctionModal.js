@@ -15,6 +15,13 @@ function CreateFunctionModal({ isOpen, onClose, onCreate }) {
     const [loadingFunctions, setLoadingFunctions] = useState(true); // Состояние загрузки
     const [selectedOperand, setSelectedOperand] = useState('op1'); // Выбор операнда: op1 или op2
 
+    const operandNames = {
+        op1: 'Функция 1',
+        op2: 'Функция 2',
+        op3: 'Функция 3',
+        result: 'Результат',
+    };
+
     // Загрузка списка функций с API
     useEffect(() => {
         const fetchFunctions = async () => {
@@ -158,9 +165,11 @@ function CreateFunctionModal({ isOpen, onClose, onCreate }) {
                         onChange={(e) => setSelectedOperand(e.target.value)}
                         className="select select-bordered text-base-content w-full"
                     >
-                        <option value="op1">op1</option>
-                        <option value="op2">op2</option>
-                        <option value="op3">op3</option>
+                        {Object.entries(operandNames).map(([key, name]) => (
+                            <option key={key} value={key}>
+                                {name}
+                            </option>
+                        ))}
                     </select>
                 </div>
                 {!scenario && (
