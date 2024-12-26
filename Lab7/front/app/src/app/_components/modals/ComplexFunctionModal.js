@@ -63,7 +63,7 @@ function ComplexFunctionModal({ isOpen, onClose, onCreate }) {
     };
 
     const renderTree = (nodes) => (
-        <ul>
+        <ul className=" max-h-96 scroll-container">
             {nodes.map((node) => (
                 <li key={node.id} className="mb-2">
                     <div className="flex items-center gap-2">

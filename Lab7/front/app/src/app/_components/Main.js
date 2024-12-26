@@ -80,7 +80,7 @@ function Main() {
                         <h1 className="text-md font-bold mb-4 text-base-content">
                             Приложение предназначено для работы с табулированными функциями. Оно предоставляет возможность выполнять следующие операции:
                         </h1>
-                        <ul className="list-disc pl-4 text-base-content">
+                        <ul className="list-disc pl-4 text-base-content mb-2">
                             <li>Выполнение арифметических операций между функциями.</li>
                             <li>Добавление функции в качестве операнда.</li>
                             <li>Дифференцирование функции.</li>
@@ -139,11 +139,22 @@ function Main() {
                             Данные операнда
                         </h2>
                         <div className="text-base-content">
-                            {modalData.x.map((x, idx) => (
-                                <p key={idx}>
-                                    <strong>Точка {idx + 1}:</strong> x = {x}, y = {modalData.y[idx]}
-                                </p>
-                            ))}
+                            {modalData.x.map((x, idx) => {
+                                // Функция для округления, если после запятой больше трех знаков
+                                const formatValue = (value) => {
+                                    const strValue = value.toString();
+                                    if (strValue.includes('.') && strValue.split('.')[1].length > 3) {
+                                        return Number(value).toFixed(3);
+                                    }
+                                    return value;
+                                };
+
+                                return (
+                                    <p key={idx}>
+                                        <strong>Точка {idx + 1}:</strong> x = {formatValue(x)}, y = {formatValue(modalData.y[idx])}
+                                    </p>
+                                );
+                            })}
                         </div>
                         <div className="mt-4 flex justify-end">
                             <button onClick={closeModal} className="btn btn-secondary">
@@ -153,6 +164,8 @@ function Main() {
                     </div>
                 </div>
             )}
+
+
         </div>
     );
 }

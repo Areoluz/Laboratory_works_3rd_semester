@@ -104,7 +104,7 @@ function CreateFunctionModal({ isOpen, onClose, onCreate }) {
         }
 
         const payload = {
-            count: Number(pointCountMath),
+            count: Number(pointCountMath-1),
             className: functionSelect,
             xstart: Number(intervalStart),
             xend: Number(intervalEnd),
