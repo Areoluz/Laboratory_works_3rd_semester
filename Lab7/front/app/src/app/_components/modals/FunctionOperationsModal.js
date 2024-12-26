@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import CreateFunctionModal from './CreateFunctionModal'; // Импортируем компонент для создания функции
@@ -10,6 +8,8 @@ function FunctionOperationsModal({ isOpen, onClose }) {
     const [resultFunction, setResultFunction] = useState([]);
     const [error, setError] = useState('');
     const [isCreateFunctionModalOpen, setIsCreateFunctionModalOpen] = useState(false);
+    const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+    const [saveTarget, setSaveTarget] = useState({ id: '', func: null });
 
     // Функция для загрузки данных с сервера
     const fetchFunctionData = async (id, setFunction) => {
@@ -59,10 +59,7 @@ function FunctionOperationsModal({ isOpen, onClose }) {
 
         try {
             const response = await axios.post('/api/operands/calculate', null, {
-                params: { operation: operation,
-                op1: 'op1',
-                op2: 'op2',
-                result:'result'}
+                params: { operation: operation, op1: 'op1', op2: 'op2', result: 'result' }
             });
 
             const resultResponse = await axios.get(`/api/operands/get`, {
@@ -95,22 +92,113 @@ function FunctionOperationsModal({ isOpen, onClose }) {
         }
     };
 
+    const opts = {
+        types: [
+            {
+                description: 'Tabulated Function',
+                accept: { 'application/x-binary': ['.bin'] },
+            },
+            {
+                description: 'Tabulated Function',
+                accept: { 'application/xml': ['.xml'] },
+            },
+        ],
+        excludeAcceptAllOption: true,
+    }
+
+    async function onSave(id) {
+        try {
+            const handle = await window.showSaveFilePicker(opts)
+
+            let response
+            if (handle.name.endsWith('.xml')) {
+                response = await axios.get(`/tabulated/operands/${id}/xml`, {
+                    responseType: 'blob',
+                })
+            } else {
+                response = await axios.get(`/tabulated/operands/${id}/serialized`, {
+                    responseType: 'blob',
+                })
+            }
+
+            const writableStream = await handle.createWritable()
+            await writableStream.write(response.data)
+            await writableStream.close()
+        } catch (e) {
+            if (e.name !== 'AbortError') throw e
+        }
+    }
+
+    async function onUpload(id) {
+        try {
+            const [handle] = await window.showOpenFilePicker(opts)
+            const fileData = await handle.getFile()
+
+            let response
+            if (handle.name.endsWith('.xml')) {
+                response = await axios.post(`/api/operands/xml`, await fileData.text(), {
+                    headers: {
+                        'Content-Type': 'application/xml',
+                    },
+                })
+            } else {
+                response = await axios.post(
+                    `/api/operands/binary`,
+                    await fileData.arrayBuffer(),
+                    {
+                        headers: {
+                            'Content-Type': 'application/octet-stream',
+                        },
+                    }
+                )
+            }
+
+            if (id === 'op1') {
+                setFunction1(response.data);
+            } else if (id === 'op2') {
+                setFunction2(response.data);
+            }
+        } catch (e) {
+            if (e.name !== 'AbortError') throw e
+        }
+    }
+
     const handleCreateFunction = () => {
         setIsCreateFunctionModalOpen(true);
     };
 
-    const handleSaveFunction = async (func, name) => {
+    const handleSaveFunction = (id, func) => {
+        setSaveTarget({ id, func });
+        setIsSaveModalOpen(true);
+    };
+
+    const handleSaveToXml = async () => {
         try {
-            const serializedFunction = JSON.stringify(func);
-            const functionsIO = new FunctionsIO();
-            await functionsIO.saveToFile(name, serializedFunction);
-            alert('Функция сохранена успешно!');
+            await axios.get(`/api/operands/xml`, {
+                params: { id: saveTarget.id }
+            });
+            alert('Функция успешно сохранена в формате XML.');
         } catch (error) {
-            console.error('Ошибка при сохранении функции:', error);
-            setError('Не удалось сохранить функцию.');
+            console.error('Ошибка при сохранении в XML:', error);
+            setError('Не удалось сохранить функцию в XML.');
+        } finally {
+            setIsSaveModalOpen(false);
         }
     };
 
+    const handleSaveToBinary = async () => {
+        try {
+            await axios.get(`/api/operands/binary`, {
+                params: { id: saveTarget.id }
+            });
+            alert('Функция успешно сериализована.');
+        } catch (error) {
+            console.error('Ошибка при сериализации:', error);
+            setError('Не удалось сериализовать функцию.');
+        } finally {
+            setIsSaveModalOpen(false);
+        }
+    };
 
     if (!isOpen) return null;
 
@@ -131,11 +219,7 @@ function FunctionOperationsModal({ isOpen, onClose }) {
                     {[function1, function2, resultFunction].map((tableData, idx) => (
                         <div key={idx}>
                             <h3 className="text-lg font-bold text-base-content mb-2">
-                                {idx === 0
-                                    ? 'Функция 1'
-                                    : idx === 1
-                                        ? 'Функция 2'
-                                        : 'Результат'}
+                                {idx === 0 ? 'Функция 1' : idx === 1 ? 'Функция 2' : 'Результат'}
                             </h3>
                             <table className="table w-full mb-4">
                                 <thead>
@@ -190,10 +274,16 @@ function FunctionOperationsModal({ isOpen, onClose }) {
                                         Создать
                                     </button>
                                     <button
-                                        onClick={() => handleSaveFunction(idx === 0 ? function1 : function2, `Функция_${idx + 1}`)}
+                                        onClick={() => handleSaveFunction(idx === 0 ? 'op1' : 'op2', idx === 0 ? function1 : function2)}
                                         className="btn btn-secondary m-2"
                                     >
                                         Сохранить
+                                    </button>
+                                    <button
+                                        onClick={() => onUpload(idx === 0 ? 'op1' : 'op2')}
+                                        className="btn btn-info m-2"
+                                    >
+                                        Загрузить из файла
                                     </button>
                                 </div>
                             )}
@@ -229,16 +319,37 @@ function FunctionOperationsModal({ isOpen, onClose }) {
                 onClose={() => setIsCreateFunctionModalOpen(false)}
                 onCreate={(data) => {
                     console.log('Созданная функция:', data);
-                    // Закрытие модального окна
                     setIsCreateFunctionModalOpen(false);
-
-                    // Обновление данных для op1 и op2
-                    // Запрашиваем данные для обеих функций после создания
                     fetchFunctionData('op1', setFunction1);
                     fetchFunctionData('op2', setFunction2);
                 }}
             />
 
+            {/* Модальное окно для выбора способа сохранения */}
+            {isSaveModalOpen && (
+                <div
+                    className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+                    onClick={() => setIsSaveModalOpen(false)}
+                >
+                    <div
+                        className="bg-white p-6 rounded-lg shadow-md w-full max-w-sm"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <h3 className="text-lg font-bold mb-4 text-base-content">Выберите способ сохранения</h3>
+                        <div className="flex flex-col gap-4">
+                            <button onClick={handleSaveToXml} className="btn btn-primary">
+                                Сохранить в XML
+                            </button>
+                            <button onClick={handleSaveToBinary} className="btn btn-secondary">
+                                Сериализация
+                            </button>
+                            <button onClick={() => setIsSaveModalOpen(false)} className="btn btn-error">
+                                Отмена
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
