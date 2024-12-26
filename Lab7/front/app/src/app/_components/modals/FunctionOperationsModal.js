@@ -17,7 +17,7 @@ function FunctionOperationsModal({ isOpen, onClose }) {
             const response = await axios.get(`/api/operands/get`, {
                 params: { id }
             });
-            const { x, y } = response.data;
+            const { x, y } = response.data || {};
             const newFunction = x.map((xValue, index) => ({
                 x: xValue,
                 y: y[index]
@@ -58,13 +58,11 @@ function FunctionOperationsModal({ isOpen, onClose }) {
         }
 
         try {
-            const response = await axios.post('/api/operands/calculate', null, {
+            const resultResponse = await axios.post('/api/operands/calculate', null, {
                 params: { operation: operation, op1: 'op1', op2: 'op2', result: 'result' }
             });
 
-            const resultResponse = await axios.get(`/api/operands/get`, {
-                params: { id: 'result' }
-            });
+
 
             const { x, y } = resultResponse.data;
             const result = x.map((xValue, index) => ({
@@ -106,17 +104,19 @@ function FunctionOperationsModal({ isOpen, onClose }) {
         excludeAcceptAllOption: true,
     }
 
-    async function onSave(id) {
+    async function onSave() {
         try {
             const handle = await window.showSaveFilePicker(opts)
 
             let response
             if (handle.name.endsWith('.xml')) {
-                response = await axios.get(`/tabulated/operands/${id}/xml`, {
+                response = await axios.get(`/api/operands/xml`, {
+                    params: { id: saveTarget.id },
                     responseType: 'blob',
-                })
+                });
             } else {
-                response = await axios.get(`/tabulated/operands/${id}/serialized`, {
+                response = await axios.get(`/api/operands/binary`, {
+                    params: { id: saveTarget.id },
                     responseType: 'blob',
                 })
             }
@@ -137,6 +137,7 @@ function FunctionOperationsModal({ isOpen, onClose }) {
             let response
             if (handle.name.endsWith('.xml')) {
                 response = await axios.post(`/api/operands/xml`, await fileData.text(), {
+                    params: { id: saveTarget.id },
                     headers: {
                         'Content-Type': 'application/xml',
                     },
@@ -146,6 +147,7 @@ function FunctionOperationsModal({ isOpen, onClose }) {
                     `/api/operands/binary`,
                     await fileData.arrayBuffer(),
                     {
+                        params: { id: saveTarget.id },
                         headers: {
                             'Content-Type': 'application/octet-stream',
                         },
@@ -167,6 +169,22 @@ function FunctionOperationsModal({ isOpen, onClose }) {
         setIsCreateFunctionModalOpen(true);
     };
 
+    const handleSaveFunction = (id, func) => {
+        setSaveTarget({ id, func });
+        setIsSaveModalOpen(true);
+    };
+
+    const handleSaveToXml = async () => {
+        try {
+            await onSave()
+            alert('Функция успешно сохранена в формате XML.');
+        } catch (error) {
+            console.error('Ошибка при сохранении в XML:', error);
+            setError('Не удалось сохранить функцию в XML.');
+        } finally {
+            setIsSaveModalOpen(false);
+        }
+    };
     if (!isOpen) return null;
 
     return (
@@ -229,13 +247,19 @@ function FunctionOperationsModal({ isOpen, onClose }) {
                             {idx !== 2 && (
                                 <div className="flex-col gap-2 p-2">
                                     <button
+                                        onClick={() => fetchFunctionData(idx === 0 ? 'op1' : 'op2', idx === 0 ? setFunction1 : setFunction2)}
+                                        className="btn btn-primary m-2"
+                                    >
+                                        Загрузить
+                                    </button>
+                                    <button
                                         onClick={() => handleCreateFunction()}
                                         className="btn btn-success m-2"
                                     >
                                         Создать
                                     </button>
                                     <button
-                                        onClick={() => onSave(idx === 0 ? 'op1' : 'op2', idx === 0 ? function1 : function2)}
+                                        onClick={() => handleSaveFunction(idx === 0 ? 'op1' : 'op2', idx === 0 ? function1 : function2)}
                                         className="btn btn-secondary m-2"
                                     >
                                         Сохранить
@@ -299,10 +323,7 @@ function FunctionOperationsModal({ isOpen, onClose }) {
                         <h3 className="text-lg font-bold mb-4 text-base-content">Выберите способ сохранения</h3>
                         <div className="flex flex-col gap-4">
                             <button onClick={handleSaveToXml} className="btn btn-primary">
-                                Сохранить в XML
-                            </button>
-                            <button onClick={handleSaveToBinary} className="btn btn-secondary">
-                                Сериализация
+                                Сохранить в XML/bin
                             </button>
                             <button onClick={() => setIsSaveModalOpen(false)} className="btn btn-error">
                                 Отмена
